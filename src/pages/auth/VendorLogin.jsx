@@ -1,8 +1,10 @@
 // src/pages/auth/VendorLogin.jsx
 import React, { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import axiosClient from '../../axios-client'
+import axiosClient from '../../constants/AXIOS_CONFIG'
+import API_ENDPOINTS from '../../constants/API_ENDPOINTS'
 import { useStateContext } from '../../contexts/ContextProvider'
+import PATH from '../../constants/ROUTER'
 
 function VendorLogin() {
 
@@ -20,7 +22,7 @@ function VendorLogin() {
     }
     setErrors(null)
 
-    axiosClient.post('auth/login', payload)
+    axiosClient.post(API_ENDPOINTS.VENDOR_LOGIN, payload)
       .then(({ data }) => {
         setUser(data.user)
         setToken(data.token)
@@ -42,7 +44,7 @@ function VendorLogin() {
   return (
     <div className="login-form-container">
       <div className="login-form">
-        <h1>Admin Login</h1>
+        <h1>Vendor Login</h1>
 
         {/* Error messages */}
         {errors && (
@@ -81,7 +83,7 @@ function VendorLogin() {
 
         <p className="text-center text-gray-600 mt-4">
           Not Registered?{' '}
-          <Link to="/auth/vendor/register" className="text-blue-600 hover:text-blue-800">
+          <Link to={PATH.AUTH_REGISTER} className="text-blue-600 hover:text-blue-800">
             Create an account
           </Link>
         </p>

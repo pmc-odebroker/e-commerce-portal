@@ -24,13 +24,18 @@ export const ContextProvider = ({ children }) => {
         }
     };
 
+    const setUserAndRole = (user) => {
+        setUser(user);
+        setRole(user.roleName);
+      };
+
     return (
         <StateContext.Provider
             value={{
                 user,
                 token,
                 role,
-                setUser,
+                setUser: setUserAndRole,
                 setToken,
                 setRole,
             }}

@@ -1,7 +1,9 @@
 import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axiosClient from '../../axios-client';
+import axiosClient from '../../constants/AXIOS_CONFIG';
+import API_ENDPOINTS from '../../constants/API_ENDPOINTS';
 import { useStateContext } from '../../contexts/ContextProvider';
+import PATH from '../../constants/ROUTER';
 
 function Register() {
   const nameRef = useRef();
@@ -22,7 +24,7 @@ function Register() {
     };
 
     axiosClient
-      .post('auth/vendor/register', payload)
+      .post(API_ENDPOINTS.VENDOR_REGISTER, payload)
       .then(({ data }) => {
         setUser(data.user);
         setToken(data.token);
@@ -51,12 +53,21 @@ function Register() {
 
         <form onSubmit={onSubmit} className="space-y-6">
           <div>
-            <label htmlFor="name">Full Name</label>
+            <label htmlFor="first_name">First Name</label>
             <input
               ref={nameRef}
               id="name"
               type="text"
-              placeholder="Full Name"
+              placeholder="First Name"
+            />
+          </div>
+          <div>
+            <label htmlFor="last_name">Last Name</label>
+            <input
+              ref={nameRef}
+              id="last_name"
+              type="text"
+              placeholder="Last Name"
             />
           </div>
           <div>
@@ -91,7 +102,7 @@ function Register() {
 
           <p className="text-center text-gray-600 mt-4">
             Already have an account?{' '}
-            <Link to="/auth/vendor/login" className="text-blue-600 hover:text-blue-800">
+            <Link to={PATH.AUTH_LOGIN_VENDOR} className="text-blue-600 hover:text-blue-800">
               Login In
             </Link>
           </p>

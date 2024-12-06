@@ -1,4 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { useStateContext } from './contexts/ContextProvider';
+import PATH from './constants/ROUTER';
 
 // Layouts for Admin and Vendor
 import AdminLayout from './components/AdminLayout';
@@ -24,122 +26,66 @@ import AdminLogin from './pages/auth/AdminLogin';
 import VendorLogin from './pages/auth/VendorLogin';
 import Register from './pages/auth/Register';
 
-import { useStateContext } from './contexts/ContextProvider';
-
 const ProtectedRoute = ({ children, role }) => {
   const { token, user } = useStateContext();
-
-  // If not authenticated, redirect to vendor login
-  if (!token) {
-    return <Navigate to="/auth/vendor/login" />;
-  }
-
-  // Redirect based on role
-  if (role === 'admin' && user?.role !== 'admin') {
-    return <Navigate to="/vendor/dashboard" />;
-  }
-  if (role === 'vendor' && user?.role !== 'vendor') {
-    return <Navigate to="/admin/dashboard" />;
-  }
-
+  if (!token) return <Navigate to={PATH.AUTH_LOGIN_VENDOR} />;
+  if (role === 'admin' && user?.role !== 'admin') return <Navigate to={PATH.VENDOR_DASHBOARD} />;
+  if (role === 'vendor' && user?.role !== 'vendor') return <Navigate to={PATH.ADMIN_DASHBOARD} />;
   return children;
 };
 
 const router = createBrowserRouter([
+
+  /**
+   * ADMIN URLS
+   */
   {
-    path: '/admin',
-    element: (
-      <ProtectedRoute role="admin">
-        <AdminLayout />
-      </ProtectedRoute>
-    ),
+    path: PATH.ADMIN_HOME,
+    element: <ProtectedRoute role="admin"><AdminLayout /></ProtectedRoute>,
     children: [
-      {
-        path: '',
-        element: <Navigate to="/admin/dashboard" />
-      },
-      {
-        path: 'dashboard',
-        element: <AdminDashboard />
-      },
-      {
-        path: 'vendors',
-        element: <VendorsList />
-      },
-      {
-        path: 'vendors/:id',
-        element: <VendorDetail />
-      },
-      {
-        path: 'customers',
-        element: <CustomersList />
-      },
-      {
-        path: 'customers/:id',
-        element: <CustomerDetail />
-      },
-      {
-        path: 'orders',
-        element: <OrdersAdmin />
-      },
+      { path: '', element: <Navigate to={PATH.ADMIN_DASHBOARD} /> },
+      { path: PATH.ADMIN_DASHBOARD, element: <AdminDashboard /> },
+      { path: PATH.ADMIN_VENDORS, element: <VendorsList /> },
+      { path: PATH.ADMIN_VENDOR_DETAIL(':id'), element: <VendorDetail /> },
+      { path: PATH.ADMIN_CUSTOMERS, element: <CustomersList /> },
+      { path: PATH.ADMIN_CUSTOMER_DETAIL(':id'), element: <CustomerDetail /> },
+      { path: PATH.ADMIN_ORDERS, element: <OrdersAdmin /> },
     ]
   },
+
+  /**
+   * VENDOR URLS
+   */
   {
-    path: '/vendor',
-    element: (
-      <ProtectedRoute role="vendor">
-        <VendorLayout />
-      </ProtectedRoute>
-    ),
+    path: PATH.VENDOR_HOME,
+    element: <ProtectedRoute role="vendor"><VendorLayout /></ProtectedRoute>,
     children: [
-      {
-        path: '',
-        element: <Navigate to="/vendor/dashboard" />
-      },
-      {
-        path: 'dashboard',
-        element: <VendorDashboard />
-      },
-      {
-        path: 'products',
-        element: <ProductsVendor />
-      },
-      {
-        path: 'orders',
-        element: <OrdersVendor />
-      },
-      {
-        path: 'profile',
-        element: <VendorProfile />
-      }
+      { path: '', element: <Navigate to={PATH.VENDOR_DASHBOARD} /> },
+      { path: PATH.VENDOR_DASHBOARD, element: <VendorDashboard /> },
+      { path: PATH.VENDOR_PRODUCTS, element: <ProductsVendor /> },
+      { path: PATH.VENDOR_ORDERS, element: <OrdersVendor /> },
+      { path: PATH.VENDOR_PROFILE, element: <VendorProfile /> }
     ]
   },
+
+  /**
+   * AUTHENTICATION URLS
+   */
   {
-    path: '/auth',
+    path: PATH.AUTH_HOME,
     element: <AuthLayout />,
     children: [
-      {
-        path: '',
-        element: <Navigate to="/auth/vendor/login" />
-      },
-      {
-        path: 'admin/login',
-        element: <AdminLogin />
-      },
-      {
-        path: 'vendor/login',
-        element: <VendorLogin />
-      },
-      {
-        path: 'vendor/register',
-        element: <Register />
-      },
+      { path: '', element: <Navigate to={PATH.AUTH_LOGIN_VENDOR} /> },
+      { path: PATH.AUTH_LOGIN_ADMIN, element: <AdminLogin /> },
+      { path: PATH.AUTH_LOGIN_VENDOR, element: <VendorLogin /> },
+      { path: PATH.AUTH_REGISTER, element: <Register /> },
     ]
   },
-  {
-    path: '/',
-    element: <Navigate to="/auth/vendor/login" />
-  },
+
+  /**
+   * DEFAULT URL
+   */
+  { path: PATH.HOME, element: <Navigate to={PATH.AUTH_LOGIN_VENDOR} /> },
 ]);
 
 export default router;

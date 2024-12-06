@@ -1,7 +1,10 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-    baseURL: `${import.meta.env.VITE_API_BASE_URL}/api`,
+    baseURL: "http://localhost:8080/api/v1",
+    headers: {
+        'Content-Type': 'application/json',
+    },
 });
 
 axiosClient.interceptors.request.use((config) => {
@@ -24,7 +27,7 @@ axiosClient.interceptors.response.use(
         }
 
         throw error;
-    }
+    } 
 );
 
 export default axiosClient;

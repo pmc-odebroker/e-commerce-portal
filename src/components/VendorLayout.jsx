@@ -1,6 +1,7 @@
 import { Link, Outlet, Navigate } from "react-router-dom";
 import { useStateContext } from "../contexts/ContextProvider";
-import axiosClient from "../axios-client";
+import axiosClient from "../constants/AXIOS_CONFIG";
+import PATH from "../constants/ROUTER";
 
 export default function VendorLayout() {
   const { user, token, setUser, setToken } = useStateContext();
@@ -18,11 +19,11 @@ export default function VendorLayout() {
 
   // Redirect non-vendor users to the vendor login page
   if (!token) {
-    return <Navigate to="/auth/vendor/login" />;
+    return <Navigate to={PATH.AUTH_LOGIN_VENDOR} />;
   }
 
   if (user?.role !== "vendor") {
-    return <Navigate to="/auth/vendor/login" />;
+    return <Navigate to={PATH.AUTH_LOGIN_VENDOR} />;
   }
 
   return (
@@ -31,23 +32,18 @@ export default function VendorLayout() {
         <nav>
           <ul>
             <li className="mb-2">
-              <Link to="/vendor/dashboard" className="text-blue-600 hover:underline">
+              <Link to={PATH.VENDOR_DASHBOARD} className="text-blue-600 hover:underline">
                 Dashboard
               </Link>
             </li>
             <li className="mb-2">
-              <Link to="/vendor/products" className="text-blue-600 hover:underline">
+              <Link to={PATH.VENDOR_PRODUCTS} className="text-blue-600 hover:underline">
                 Products
               </Link>
             </li>
             <li className="mb-2">
-              <Link to="/vendor/orders" className="text-blue-600 hover:underline">
+              <Link to={PATH.VENDOR_ORDERS} className="text-blue-600 hover:underline">
                 Orders
-              </Link>
-            </li>
-            <li className="mb-2">
-              <Link to="/vendor/profile" className="text-blue-600 hover:underline">
-                Profile
               </Link>
             </li>
           </ul>

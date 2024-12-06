@@ -1,7 +1,8 @@
 // AdminLogin.jsx
 import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import axiosClient from "../../axios-client";
+import axiosClient from "../../constants/AXIOS_CONFIG";
+import API_ENDPOINTS from "../../constants/API_ENDPOINTS";
 import { useStateContext } from "../../contexts/ContextProvider";
 
 function AdminLogin() {
@@ -20,7 +21,7 @@ function AdminLogin() {
     setErrors(null);
 
     axiosClient
-      .post("/auth/login", payload)
+      .post(API_ENDPOINTS.ADMIN_LOGIN, payload)
       .then(({ data }) => {
         setUser(data.user);
         setToken(data.token);
