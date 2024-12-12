@@ -1,7 +1,7 @@
 import { Link, Outlet, Navigate } from "react-router-dom";
 import { useStateContext } from "../contexts/ContextProvider";
 import axiosClient from "../constants/AXIOS_CONFIG";
-import PATH from "../constants/ROUTER";
+import { PATH } from "../constants/PATH";
 
 export default function VendorLayout() {
   const { user, token, setUser, setToken } = useStateContext();
@@ -17,14 +17,13 @@ export default function VendorLayout() {
     }
   };
 
-  // Redirect non-vendor users to the vendor login page
-  if (!token) {
-    return <Navigate to={PATH.AUTH_LOGIN_VENDOR} />;
-  }
+  // if (!token) {
+  //   return <Navigate to={PATH.AUTH_LOGIN_VENDOR} />;
+  // }
 
-  if (user?.role !== "vendor") {
-    return <Navigate to={PATH.AUTH_LOGIN_VENDOR} />;
-  }
+  // if (user?.role !== "vendor") {
+  //   return <Navigate to={PATH.AUTH_LOGIN_VENDOR} />;
+  // }
 
   return (
     <div id="vendorLayout" className="flex">

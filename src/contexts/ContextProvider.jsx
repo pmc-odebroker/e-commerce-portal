@@ -1,49 +1,56 @@
-// src/contexts/ContextProvider.jsx
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
+// Create the context with initial values
 const StateContext = createContext({
-    currentUser: null,
-    token: null,
-    role: null, // Added role to the context
-    setUser: () => {},
-    setToken: () => {},
-    setRole: () => {}, // Added setRole
+  user: null,
+  token: null,
+  setUser: () => {},
+  setToken: () => {},
 });
 
+// Define the provider component
 export const ContextProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [token, _setToken] = useState(null);
-    const [role, setRole] = useState(null); // State for role
+  const [user, setUser] = useState(null);
+  const [token, setTokenInternal] = useState(null);
 
-    const setToken = (token) => {
-        _setToken(token);
-        if (token) {
-            localStorage.setItem("ACCESS_TOKEN", token);
-        } else {
-            localStorage.removeItem("ACCESS_TOKEN");
-        }
-    };
+  // Retrieve the token from localStorage on component mount
+  useEffect(() => {
+    const savedToken = localStorage.getItem("ACCESS_TOKEN");
+    if (savedToken) {
+      setTokenInternal(savedToken);
+      console.log("Token loaded from localStorage:", savedToken);
+    }
+  }, []);
 
-    const setUserAndRole = (user) => {
-        setUser(user);
-        setRole(user.roleName);
-      };
+  // Function to handle token updates
+  const setToken = (newToken) => {
+    setTokenInternal(newToken);
+    if (newToken) {
+      if (!localStorage.getItem("ACCESS_TOKEN")) {
+        localStorage.setItem("ACCESS_TOKEN", newToken);
+        console.log("Token saved to localStorage.");
+      }
+    } else {
+      localStorage.removeItem("ACCESS_TOKEN");
+      console.log("Token removed from localStorage.");
+    }
+  };
 
-    return (
-        <StateContext.Provider
-            value={{
-                user,
-                token,
-                role,
-                setUser: setUserAndRole,
-                setToken,
-                setRole,
-            }}
-        >
-            {children}
-        </StateContext.Provider>
-    );
+  return (
+    <StateContext.Provider
+      value={{
+        user,
+        token,
+        setUser,
+        setToken,
+      }}
+    >
+      {children}
+    </StateContext.Provider>
+  );
 };
 
+// Hook to access the context
 export const useStateContext = () => useContext(StateContext);
+
 export default ContextProvider;

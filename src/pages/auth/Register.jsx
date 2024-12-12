@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import axiosClient from '../../constants/AXIOS_CONFIG';
 import API_ENDPOINTS from '../../constants/API_ENDPOINTS';
 import { useStateContext } from '../../contexts/ContextProvider';
-import PATH from '../../constants/ROUTER';
+import { PATH } from '../../constants/PATH';
 
 function Register() {
   const nameRef = useRef();
@@ -28,6 +28,9 @@ function Register() {
       .then(({ data }) => {
         setUser(data.user);
         setToken(data.token);
+        
+        navigate(PATH.AUTH_LOGIN_VENDOR);
+
       })
       .catch((err) => {
         const response = err.response;

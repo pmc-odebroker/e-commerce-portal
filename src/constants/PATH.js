@@ -1,4 +1,4 @@
-const PATH = {
+export const PATH = {
   // Admin routes
   ADMIN_HOME: '/admin',
   ADMIN_DASHBOARD: '/admin/dashboard',
@@ -24,5 +24,3 @@ const PATH = {
   // Default route
   HOME: '/',
 };
-
-export default PATH;

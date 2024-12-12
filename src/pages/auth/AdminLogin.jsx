@@ -1,30 +1,44 @@
-// AdminLogin.jsx
 import React, { useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import axiosClient from "../../constants/AXIOS_CONFIG";
 import API_ENDPOINTS from "../../constants/API_ENDPOINTS";
 import { useStateContext } from "../../contexts/ContextProvider";
+import { useNavigate } from "react-router-dom";
+import { PATH } from "../../constants/PATH";
+
 
 function AdminLogin() {
   const emailRef = useRef();
   const passwordRef = useRef();
   const { setUser, setToken } = useStateContext();
   const [errors, setErrors] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const onSubmit = (ev) => {
     ev.preventDefault();
+    setErrors(null);
+    setLoading(true);
 
     const payload = {
       email: emailRef.current.value,
       password: passwordRef.current.value,
     };
-    setErrors(null);
 
     axiosClient
       .post(API_ENDPOINTS.ADMIN_LOGIN, payload)
       .then(({ data }) => {
+
         setUser(data.user);
         setToken(data.token);
+
+        if (data.user.roleName === "SUPERADMIN") {
+          navigate(PATH.ADMIN_DASHBOARD);
+        }else{
+          navigate(PATH.AUTH_LOGIN_VENDOR);
+        }
+
+        emailRef.current.value = "";
+        passwordRef.current.value = "";
       })
       .catch((err) => {
         const response = err.response;
@@ -36,7 +50,14 @@ function AdminLogin() {
               email: [response.data.message],
             });
           }
+        } else {
+          setErrors({
+            generic: ["An unexpected error occurred. Please try again later."],
+          });
         }
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -49,7 +70,7 @@ function AdminLogin() {
         {errors && (
           <div className="alert">
             {Object.keys(errors).map((key) => (
-              <p key={key} className="text-sm">
+              <p key={key} className="text-sm text-red-500">
                 {errors[key][0]}
               </p>
             ))}
@@ -64,6 +85,7 @@ function AdminLogin() {
               id="email"
               type="email"
               placeholder="Email"
+              required
             />
           </div>
 
@@ -74,10 +96,13 @@ function AdminLogin() {
               id="password"
               type="password"
               placeholder="Password"
+              required
             />
           </div>
 
-          <button type="submit">Login</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
         </form>
       </div>
     </div>
