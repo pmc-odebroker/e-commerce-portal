@@ -72,9 +72,9 @@ export const router = createBrowserRouter([
     path: PATH.AUTH_HOME,
     element: <AuthLayout />,
     children: [
-      { path: '', element: <Navigate to={PATH.AUTH_LOGIN_VENDOR} /> },
-      { path: PATH.AUTH_LOGIN_ADMIN, element: <AdminLogin /> },
-      { path: PATH.AUTH_LOGIN_VENDOR, element: <VendorLogin /> },
+      { path: '', element: <Navigate to={PATH.AUTH_VENDOR_LOGIN} /> },
+      { path: PATH.AUTH_ADMIN_LOGIN, element: <AdminLogin /> },
+      { path: PATH.AUTH_VENDOR_LOGIN, element: <VendorLogin /> },
       { path: PATH.AUTH_REGISTER, element: <Register /> },
     ]
   },
@@ -82,5 +82,5 @@ export const router = createBrowserRouter([
   /**
    * DEFAULT URL
    */
-  { path: PATH.HOME, element: <Navigate to={PATH.AUTH_LOGIN_VENDOR} /> },
+  { path: PATH.HOME, element: <Navigate to={PATH.AUTH_VENDOR_LOGIN} /> },
 ]);

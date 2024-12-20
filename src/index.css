@@ -57,7 +57,7 @@
 
 /* Global styles for the sidebar */
 .sidebar {
-  @apply w-1/5 bg-primary text-white min-h-screen p-6;
+  @apply w-1/5 bg-white text-black min-h-screen p-6;
 }
 
 .sidebar h2 {
@@ -73,15 +73,26 @@
 }
 
 .sidebar nav ul li a {
-  @apply flex items-center gap-3 p-3 rounded-md text-white hover:bg-secondary transition-all duration-300;
+  @apply flex items-center gap-3 p-3 rounded-md text-black hover:bg-secondary transition-all duration-300;
 }
 
 .sidebar nav ul li a:hover {
-  background-color: #5450B4;
+  background-color: #E5E7EB;
 }
 
 .sidebar nav ul li a svg {
   @apply text-xl;
+}
+
+/* Increase specificity to target the active link correctly */
+.sidebar nav ul li a.active {
+  color: var(--surface);
+  background-color: var(--primary);
+}
+
+.sidebar nav ul li a.active:hover {
+  background-color: var(--secondary);
+  color: var(--surface);
 }
 
 /* Custom color definitions for better reusability */
@@ -89,8 +100,8 @@
   --primary: #4F3CC9;
   --secondary: #5450B4;
   --background: #FCFCFE;
-  --surface: #DFE1EF;
-  --text: #FFFFFF;
+  --surface: #FFFFFF;
+  --text: #000000;
 }
 
 /* Body background and surface */
@@ -109,6 +120,26 @@ body {
 }
 
 .sidebar .absolute button:hover {
-  background-color: #f3f4f6;
+  background-color: #FCFCFE;
 }
 
+.sidebarTitle {
+  color: var(--primary);
+}
+
+/* Add this to your global CSS or Tailwind config */
+.breadcrumb {
+  display: flex;
+  list-style: none;
+  font-size: 0.875rem; /* small text */
+  color: #4a4a4a;
+}
+
+.breadcrumb li a {
+  text-decoration: none;
+  color: #4F3CC9; /* Primary color */
+}
+
+.breadcrumb li a:hover {
+  text-decoration: underline;
+}

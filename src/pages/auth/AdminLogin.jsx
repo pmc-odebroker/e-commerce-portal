@@ -15,26 +15,28 @@ function AdminLogin() {
   const navigate = useNavigate();
 
   const onSubmit = (ev) => {
-    ev.preventDefault();
+    ev.preventDefault()
     setErrors(null);
     setLoading(true);
 
     const payload = {
       email: emailRef.current.value,
-      password: passwordRef.current.value,
-    };
+      password: passwordRef.current.value
+    }
 
     axiosClient
       .post(API_ENDPOINTS.ADMIN_LOGIN, payload)
       .then(({ data }) => {
-
         setUser(data.user);
         setToken(data.token);
 
+        localStorage.setItem("USER_DATA", JSON.stringify(data.user));
+        localStorage.setItem("ACCESS_TOKEN", data.token);
+
         if (data.user.roleName === "SUPERADMIN") {
           navigate(PATH.ADMIN_DASHBOARD);
-        }else{
-          navigate(PATH.AUTH_LOGIN_VENDOR);
+        } else {
+          navigate(PATH.AUTH_ADMIN_LOGIN);
         }
 
         emailRef.current.value = "";

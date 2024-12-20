@@ -1,4 +1,3 @@
-// src/pages/auth/VendorLogin.jsx
 import React, { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import axiosClient from '../../constants/AXIOS_CONFIG'
@@ -25,19 +24,20 @@ function VendorLogin() {
       email: emailRef.current.value,
       password: passwordRef.current.value
     }
-    setErrors(null)
 
     axiosClient
       .post(API_ENDPOINTS.VENDOR_LOGIN, payload)
       .then(({ data }) => {
+        setUser(data.user);
+        setToken(data.token);
 
-        setUser(data.user)
-        setToken(data.token)
+        localStorage.setItem("USER_DATA", JSON.stringify(data.user));
+        localStorage.setItem("ACCESS_TOKEN", data.token);
 
         if (data.user.roleName === "VENDOR") {
           navigate(PATH.VENDOR_DASHBOARD);
-        }else{
-          navigate(PATH.AUTH_LOGIN_VENDOR);
+        } else {
+          navigate(PATH.AUTH_VENDOR_LOGIN);
         }
 
         emailRef.current.value = "";
@@ -88,6 +88,7 @@ function VendorLogin() {
               id="email"
               type="email"
               placeholder="Email"
+              required
             />
           </div>
 
@@ -98,6 +99,7 @@ function VendorLogin() {
               id="password"
               type="password"
               placeholder="Password"
+              required
             />
           </div>
 

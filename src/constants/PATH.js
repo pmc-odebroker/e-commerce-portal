@@ -17,8 +17,8 @@ export const PATH = {
 
   // Auth routes
   AUTH_HOME: '/auth',
-  AUTH_LOGIN_ADMIN: '/auth/admin/login',
-  AUTH_LOGIN_VENDOR: '/auth/vendor/login',
+  AUTH_ADMIN_LOGIN: '/auth/admin/login',
+  AUTH_VENDOR_LOGIN: '/auth/vendor/login',
   AUTH_REGISTER: '/auth/vendor/register',
 
   // Default route

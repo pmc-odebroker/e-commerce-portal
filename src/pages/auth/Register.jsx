@@ -1,23 +1,26 @@
 import React, { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axiosClient from '../../constants/AXIOS_CONFIG';
 import API_ENDPOINTS from '../../constants/API_ENDPOINTS';
 import { useStateContext } from '../../contexts/ContextProvider';
 import { PATH } from '../../constants/PATH';
 
 function Register() {
-  const nameRef = useRef();
+  const firstNameRef = useRef();
+  const lastNameRef = useRef();
   const emailRef = useRef();
   const passwordRef = useRef();
   const passwordConfirmationRef = useRef();
   const { setUser, setToken } = useStateContext();
   const [errors, setErrors] = useState(null);
+  const navigate = useNavigate();
 
   const onSubmit = (ev) => {
     ev.preventDefault();
 
     const payload = {
-      name: nameRef.current.value,
+      first_name: firstNameRef.current.value,
+      last_name: lastNameRef.current.value,
       email: emailRef.current.value,
       password: passwordRef.current.value,
       password_confirmation: passwordConfirmationRef.current.value,
@@ -28,9 +31,7 @@ function Register() {
       .then(({ data }) => {
         setUser(data.user);
         setToken(data.token);
-        
         navigate(PATH.AUTH_LOGIN_VENDOR);
-
       })
       .catch((err) => {
         const response = err.response;
@@ -58,8 +59,8 @@ function Register() {
           <div>
             <label htmlFor="first_name">First Name</label>
             <input
-              ref={nameRef}
-              id="name"
+              ref={firstNameRef}
+              id="first_name"
               type="text"
               placeholder="First Name"
             />
@@ -67,7 +68,7 @@ function Register() {
           <div>
             <label htmlFor="last_name">Last Name</label>
             <input
-              ref={nameRef}
+              ref={lastNameRef}
               id="last_name"
               type="text"
               placeholder="Last Name"

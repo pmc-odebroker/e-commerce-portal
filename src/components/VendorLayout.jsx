@@ -1,10 +1,40 @@
-import { Link, Outlet, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Outlet, useLocation, Navigate } from "react-router-dom";
+import Navbar from "./Sidebar";
 import { useStateContext } from "../contexts/ContextProvider";
 import axiosClient from "../constants/AXIOS_CONFIG";
 import { PATH } from "../constants/PATH";
+import { FaBars, FaTimes, FaSignOutAlt } from "react-icons/fa";
+import defaultProfileImage from "../assets/profile-image.png";
 
 export default function VendorLayout() {
   const { user, token, setUser, setToken } = useStateContext();
+  const [loading, setLoading] = useState(true);
+  const [sidebarVisible, setSidebarVisible] = useState(true);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [subMenuOpen, setSubMenuOpen] = useState({
+    vendors: false,
+    customers: false,
+  });
+
+  const location = useLocation();
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("USER_DATA");
+    const storedToken = localStorage.getItem("ACCESS_TOKEN");
+
+    if (storedUser && storedToken) {
+      if (!user || !token) {
+        setUser(JSON.parse(storedUser));
+        setToken(storedToken);
+      }
+    }
+    setLoading(false);
+  }, [setUser, setToken]);
+
+  const toggleSubMenu = (menu) => {
+    setSubMenuOpen((prev) => ({ ...prev, [menu]: !prev[menu] }));
+  };
 
   const onLogout = async (ev) => {
     ev.preventDefault();
@@ -12,53 +42,61 @@ export default function VendorLayout() {
       await axiosClient.post("auth/logout");
       setUser(null);
       setToken(null);
+      localStorage.removeItem("USER_DATA");
+      localStorage.removeItem("ACCESS_TOKEN");
     } catch (error) {
       console.error("Logout failed:", error);
     }
   };
 
-  // if (!token) {
-  //   return <Navigate to={PATH.AUTH_LOGIN_VENDOR} />;
-  // }
-
-  // if (user?.role !== "vendor") {
-  //   return <Navigate to={PATH.AUTH_LOGIN_VENDOR} />;
-  // }
+  if (loading) return <div>Loading...</div>;
+  if (!token || !user) return <Navigate to={PATH.AUTH_VENDOR_LOGIN} />;
+  if (user?.roleName !== "VENDOR") return <Navigate to={PATH.AUTH_VENDOR_LOGIN} />;
 
   return (
-    <div id="vendorLayout" className="flex">
-      <aside className="w-1/5 bg-gray-200 min-h-screen p-4">
-        <nav>
-          <ul>
-            <li className="mb-2">
-              <Link to={PATH.VENDOR_DASHBOARD} className="text-blue-600 hover:underline">
-                Dashboard
-              </Link>
-            </li>
-            <li className="mb-2">
-              <Link to={PATH.VENDOR_PRODUCTS} className="text-blue-600 hover:underline">
-                Products
-              </Link>
-            </li>
-            <li className="mb-2">
-              <Link to={PATH.VENDOR_ORDERS} className="text-blue-600 hover:underline">
-                Orders
-              </Link>
-            </li>
-          </ul>
-        </nav>
-      </aside>
-      <div className="content flex-1">
-        <header className="flex justify-between items-center p-4 bg-white border-b">
-          <div className="header-left text-lg font-bold">Vendor Panel</div>
-          <div className="header-right flex items-center gap-4">
-            <span className="font-medium">{user?.name || "Vendor"}</span>
-            <button onClick={onLogout} className="btn btn-red">
-              Logout
-            </button>
+    <div id="vendorLayout" className="flex min-h-screen bg-gray-200">
+      <Navbar
+        toggleSubMenu={toggleSubMenu}
+        subMenuOpen={subMenuOpen}
+        PATH={PATH}
+        sidebarVisible={sidebarVisible}
+        role={user?.roleName}
+      />
+      <div className="flex-1 flex flex-col">
+        <header className="flex justify-between items-center p-4 bg-white border-b border-gray-200">
+          <button
+            className="text-2xl text-black hover:text-primary transition-all"
+            onClick={() => setSidebarVisible((prev) => !prev)}
+          >
+            {sidebarVisible ? <FaTimes /> : <FaBars />}
+          </button>
+          <div
+            className="flex items-center gap-3 relative"
+            onMouseEnter={() => setDropdownVisible(true)}
+            onMouseLeave={() => setDropdownVisible(false)}
+          >
+            <span className="text-lg font-bold text-blue-600">
+              Welcome, {user?.firstName} {user?.lastName}
+            </span>
+            <img
+              src={user?.profileImage || defaultProfileImage}
+              alt="Profile"
+              className="w-10 h-10 rounded-full"
+            />
+            {dropdownVisible && (
+              <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-md p-2 w-40 z-10">
+                <button
+                  onClick={onLogout}
+                  className="flex items-center gap-2 w-full px-4 py-2 text-left text-red-600 hover:bg-gray-200 rounded-md"
+                >
+                  <FaSignOutAlt />
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </header>
-        <main className="p-4">
+        <main className="p-6">
           <Outlet />
         </main>
       </div>

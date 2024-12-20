@@ -10,7 +10,7 @@ const StateContext = createContext({
 
 // Define the provider component
 export const ContextProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUserInternal] = useState(null);
   const [token, setTokenInternal] = useState(null);
 
   // Retrieve the token from localStorage on component mount
@@ -19,6 +19,13 @@ export const ContextProvider = ({ children }) => {
     if (savedToken) {
       setTokenInternal(savedToken);
       console.log("Token loaded from localStorage:", savedToken);
+    }
+
+    // Optionally, retrieve user data if it's stored in localStorage or another session store
+    const savedUser = localStorage.getItem("USER_DATA");
+    if (savedUser) {
+      setUserInternal(JSON.parse(savedUser));  // Assuming user data is stored as a JSON string
+      console.log("User data loaded from localStorage:", savedUser);
     }
   }, []);
 
@@ -33,6 +40,18 @@ export const ContextProvider = ({ children }) => {
     } else {
       localStorage.removeItem("ACCESS_TOKEN");
       console.log("Token removed from localStorage.");
+    }
+  };
+
+  // Function to handle user updates
+  const setUser = (newUser) => {
+    setUserInternal(newUser);
+    if (newUser) {
+      localStorage.setItem("USER_DATA", JSON.stringify(newUser));
+      console.log("User data saved to localStorage.");
+    } else {
+      localStorage.removeItem("USER_DATA");
+      console.log("User data removed from localStorage.");
     }
   };
 

@@ -1,14 +1,40 @@
-import { Link, Outlet } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Outlet, useLocation, Navigate } from "react-router-dom";
+import Sidebar from "./Sidebar";
 import { useStateContext } from "../contexts/ContextProvider";
 import axiosClient from "../constants/AXIOS_CONFIG";
 import { PATH } from "../constants/PATH";
-import { FaHome, FaUsers, FaClipboardList, FaBox, FaSignOutAlt } from "react-icons/fa";
+import { FaBars, FaTimes, FaSignOutAlt } from "react-icons/fa";
 import defaultProfileImage from "../assets/profile-image.png";
-import { useState } from "react";
 
 export default function AdminLayout() {
   const { user, token, setUser, setToken } = useStateContext();
+  const [loading, setLoading] = useState(true);
+  const [sidebarVisible, setSidebarVisible] = useState(true);
   const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [subMenuOpen, setSubMenuOpen] = useState({
+    vendors: false,
+    customers: false,
+  });
+
+  const location = useLocation();
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("USER_DATA");
+    const storedToken = localStorage.getItem("ACCESS_TOKEN");
+
+    if (storedUser && storedToken) {
+      if (!user || !token) {
+        setUser(JSON.parse(storedUser));
+        setToken(storedToken);
+      }
+    }
+    setLoading(false);
+  }, [setUser, setToken]);
+
+  const toggleSubMenu = (menu) => {
+    setSubMenuOpen((prev) => ({ ...prev, [menu]: !prev[menu] }));
+  };
 
   const onLogout = async (ev) => {
     ev.preventDefault();
@@ -16,86 +42,49 @@ export default function AdminLayout() {
       await axiosClient.post("auth/logout");
       setUser(null);
       setToken(null);
+      localStorage.removeItem("USER_DATA");
+      localStorage.removeItem("ACCESS_TOKEN");
     } catch (error) {
       console.error("Logout failed:", error);
     }
   };
 
+  if (loading) return <div>Loading...</div>;
+  if (!token || !user) return <Navigate to={PATH.AUTH_ADMIN_LOGIN} />;
+  if (user?.roleName !== "SUPERADMIN") return <Navigate to={PATH.AUTH_ADMIN_LOGIN} />;
+
   return (
-    <div id="adminLayout" className="flex min-h-screen bg-gray-200 gap-x-6">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <h2 className="text-2xl font-bold mb-6">Admin Panel</h2>
-        <nav>
-          <ul className="space-y-4">
-            <li>
-              <Link
-                to={PATH.ADMIN_DASHBOARD}
-                className="flex items-center gap-3 p-3 rounded-md hover:bg-yellow-500 transition-all duration-300"
-              >
-                <FaHome className="text-xl" />
-                <span>Dashboard</span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                to={PATH.ADMIN_VENDORS}
-                className="flex items-center gap-3 p-3 rounded-md hover:bg-yellow-500 transition-all duration-300"
-              >
-                <FaUsers className="text-xl" />
-                <span>Vendors</span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                to={PATH.ADMIN_CUSTOMERS}
-                className="flex items-center gap-3 p-3 rounded-md hover:bg-yellow-500 transition-all duration-300"
-              >
-                <FaClipboardList className="text-xl" />
-                <span>Customers</span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                to={PATH.ADMIN_ORDERS}
-                className="flex items-center gap-3 p-3 rounded-md hover:bg-yellow-500 transition-all duration-300"
-              >
-                <FaBox className="text-xl" />
-                <span>Orders</span>
-              </Link>
-            </li>
-          </ul>
-        </nav>
-      </aside>
-
-      {/* Content Area */}
+    <div id="adminLayout" className="flex min-h-screen bg-gray-200">
+      <Sidebar
+        toggleSubMenu={toggleSubMenu}
+        subMenuOpen={subMenuOpen}
+        PATH={PATH}
+        sidebarVisible={sidebarVisible}
+        role={user?.roleName}
+      />
       <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="flex justify-between items-center p-4 bg-white border-b border-gray-200 relative">
-          <div>
-            {/* Provide a gap */}
-          </div>
-          
-          <div
-            className="flex items-center gap-3 cursor-pointer"
-            onMouseEnter={() => setDropdownVisible(true)}
+        <header className="flex justify-between items-center p-4 bg-white border-b border-gray-200">
+          <button
+            className="text-2xl text-black hover:text-primary transition-all"
+            onClick={() => setSidebarVisible((prev) => !prev)}
           >
-            <div className="text-lg font-bold text-blue-600">
+            {sidebarVisible ? <FaTimes /> : <FaBars />}
+          </button>
+          <div
+            className="flex items-center gap-3 relative"
+            onMouseEnter={() => setDropdownVisible(true)}
+            onMouseLeave={() => setDropdownVisible(false)}
+          >
+            <span className="text-lg font-bold text-blue-600">
               Welcome, {user?.firstName} {user?.lastName}
-            </div>
-
+            </span>
             <img
               src={user?.profileImage || defaultProfileImage}
               alt="Profile"
               className="w-10 h-10 rounded-full"
             />
-
             {dropdownVisible && (
-              <div
-                className="absolute right-0 mt-2 bg-white shadow-lg rounded-md p-2 w-40 z-10"
-                onMouseEnter={() => setDropdownVisible(true)}
-                onMouseLeave={() => setDropdownVisible(false)}
-              >
+              <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-md p-2 w-40 z-10">
                 <button
                   onClick={onLogout}
                   className="flex items-center gap-2 w-full px-4 py-2 text-left text-red-600 hover:bg-gray-200 rounded-md"
@@ -107,9 +96,6 @@ export default function AdminLayout() {
             )}
           </div>
         </header>
-
-
-        {/* Main Content */}
         <main className="p-6">
           <Outlet />
         </main>
