@@ -6,6 +6,7 @@ export default function VendorsList() {
   const [vendors, setVendors] = useState([]);
 
   useEffect(() => {
+    // Fetch vendors from the API
     const fetchVendors = async () => {
       try {
         const response = await axiosClient.get(API_ENDPOINTS.VENDORS);
@@ -26,28 +27,7 @@ export default function VendorsList() {
       {/* Vendors List Content */}
       <h1 className="text-2xl font-semibold mt-4">Vendors List</h1>
 
-      {/* Vendors Table */}
-      <div className="mt-6">
-        <table className="min-w-full table-auto border-collapse">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="py-2 px-4 text-left">Vendor Name</th>
-              <th className="py-2 px-4 text-left">Contact</th>
-              <th className="py-2 px-4 text-left">Status</th>
-              <th className="py-2 px-4 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-              <tr>
-                <td className="py-2 px-4"></td>
-                <td className="py-2 px-4"></td>
-                <td className="py-2 px-4"></td>
-                <td className="py-2 px-4">
-                </td>
-              </tr>
-          </tbody>
-        </table>
-      </div>
+      
     </div>
   );
 }

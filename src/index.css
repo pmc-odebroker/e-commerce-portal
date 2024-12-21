@@ -1,9 +1,13 @@
-/* index.css */
+/* Tailwind Base, Components, and Utilities */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Global styling for login and register forms */
+/* -------------------------------------------------------- */
+/* Global Styles for Login and Register Forms              */
+/* -------------------------------------------------------- */
+
+/* Container for login form, centers content */
 .login-form-container {
   min-height: 100vh;
   display: flex;
@@ -13,6 +17,7 @@
   padding-right: 1rem; /* px-4 */
 }
 
+/* Adjust container padding for small screens and up */
 @media (min-width: 640px) {
   .login-form-container {
     padding-left: 1.5rem; /* sm:px-6 */
@@ -20,6 +25,7 @@
   }
 }
 
+/* Adjust container padding for large screens and up */
 @media (min-width: 1024px) {
   .login-form-container {
     padding-left: 2rem; /* lg:px-8 */
@@ -27,119 +33,200 @@
   }
 }
 
+/* Login form styles */
 .login-form {
   @apply w-full max-w-lg p-6 bg-white rounded-lg shadow-xl;
 }
 
+/* Header styles for login form */
 .login-form h1 {
   @apply text-3xl font-bold text-center text-primary mb-4;
 }
 
+/* Input field styles for login form */
 .login-form input {
   @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-gray-900;
 }
 
+/* Button styles for login form */
 .login-form button {
   @apply w-full py-2 bg-primary text-white font-semibold rounded-md hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
 }
 
+/* Label styles for login form */
 .login-form label {
   @apply block text-secondary font-medium mb-2;
 }
 
+/* Alert message styles */
 .alert {
   @apply bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded mb-3;
 }
 
+/* Alert message text styles */
 .alert p {
   @apply text-sm;
 }
 
-/* Global styles for the sidebar */
+/* -------------------------------------------------------- */
+/* Global Styles for Sidebar                               */
+/* -------------------------------------------------------- */
+
+/* Sidebar container styles */
 .sidebar {
   @apply w-1/5 bg-white text-black min-h-screen p-6;
 }
 
+/* Sidebar header styles */
 .sidebar h2 {
   @apply text-2xl font-bold mb-6;
 }
 
+/* Sidebar navigation styles */
 .sidebar nav ul {
   @apply space-y-4;
 }
 
+/* Sidebar list item styles */
 .sidebar nav ul li {
   @apply text-lg;
 }
 
+/* Sidebar link styles */
 .sidebar nav ul li a {
   @apply flex items-center gap-3 p-3 rounded-md text-black hover:bg-secondary transition-all duration-300;
 }
 
+/* Hover effect for sidebar links */
 .sidebar nav ul li a:hover {
   background-color: #E5E7EB;
 }
 
+/* Sidebar icon styles */
 .sidebar nav ul li a svg {
   @apply text-xl;
 }
 
-/* Increase specificity to target the active link correctly */
-.sidebar nav ul li a.active {
-  color: var(--surface);
-  background-color: var(--primary);
+/* Sidebar menu styles for hover and active states */
+.sidebar nav ul li > div,
+.sidebar nav ul li > a {
+  text-decoration: none;
+  transition: color 0.3s ease, background-color 0.3s ease;
 }
 
-.sidebar nav ul li a.active:hover {
-  background-color: var(--secondary);
-  color: var(--surface);
+/* Hover state for sidebar menu items */
+.sidebar nav ul li > div:hover,
+.sidebar nav ul li > a:hover {
+  color: var(--primary);
+  border-radius: 0.375rem;
 }
 
-/* Custom color definitions for better reusability */
+/* Active state for sidebar menu items */
+.sidebar nav ul li > div.active,
+.sidebar nav ul li > a.active {
+  color: var(--secondary);
+  border-radius: 0.375rem;
+}
+
+/* -------------------------------------------------------- */
+/* Custom Color Definitions for Better Reusability         */
+/* -------------------------------------------------------- */
+
+/* Custom color variables */
 :root {
   --primary: #4F3CC9;
-  --secondary: #5450B4;
+  --secondary: #6342D3;
   --background: #FCFCFE;
   --surface: #FFFFFF;
   --text: #000000;
 }
 
-/* Body background and surface */
+/* Body background and text color */
 body {
   background-color: var(--background);
   color: var(--text);
 }
 
-/* Custom styles for profile dropdown */
+/* -------------------------------------------------------- */
+/* Custom Styles for Profile Dropdown                     */
+/* -------------------------------------------------------- */
+.sidebar {
+  width: 250px;
+}
+
+/* Show the dropdown on hover */
 .sidebar .relative:hover .absolute {
   display: block;
 }
 
+/* Hide dropdown by default */
 .sidebar .absolute {
   display: none;
 }
 
+/* Hover effect for profile dropdown button */
 .sidebar .absolute button:hover {
-  background-color: #FCFCFE;
+  background-color: var(--background);
 }
 
+/* Sidebar title styles */
 .sidebarTitle {
   color: var(--primary);
 }
 
-/* Add this to your global CSS or Tailwind config */
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+nav {
+  overflow-y: auto;
+  padding-right: 0;
+  margin-right: -22px;
+  box-sizing: content-box;
+}
+
+/* -------------------------------------------------------- */
+/* Breadcrumb Styling (For navigation)                    */
+/* -------------------------------------------------------- */
+
+/* Breadcrumb list style */
 .breadcrumb {
   display: flex;
   list-style: none;
-  font-size: 0.875rem; /* small text */
+  font-size: 0.875rem;
   color: #4a4a4a;
 }
 
+/* Breadcrumb link style */
 .breadcrumb li a {
   text-decoration: none;
-  color: #4F3CC9; /* Primary color */
+  color: var(--primary);
 }
 
+/* Hover effect for breadcrumb links */
 .breadcrumb li a:hover {
   text-decoration: underline;
+}
+
+/* -------------------------------------------------------- */
+/* Header Styling                                         */
+/* -------------------------------------------------------- */
+
+/* Shadow effect for elements with .shadow-lg class */
+.shadow-lg {
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
 }
