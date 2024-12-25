@@ -3,9 +3,10 @@ export const PATH = {
   ADMIN_HOME: '/admin',
   ADMIN_DASHBOARD: '/admin/dashboard',
   ADMIN_VENDORS: '/admin/vendors',
-  ADMIN_VENDOR_DETAIL: (id) => `/admin/vendors/${id}`,
+  ADMIN_VENDOR_DETAIL: (id) => `/admin/vendor/${id}`,
   ADMIN_CUSTOMERS: '/admin/customers',
-  ADMIN_CUSTOMER_DETAIL: (id) => `/admin/customers/${id}`,
+  ADMIN_CUSTOMER_DETAIL: (id) => `/admin/customer/${id}`,
+  ADMIN_CATEGORIES: '/admin/categories',
   ADMIN_ORDERS: '/admin/orders',
 
   // Vendor routes

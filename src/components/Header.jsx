@@ -9,7 +9,7 @@ export default function Header({ sidebarVisible, setSidebarVisible, user, onLogo
     <header className="flex justify-between items-center p-4 bg-gradient-to-r from-[#4F3CC9] to-purple-500 shadow-md text-white">
       {/* Sidebar Toggle Button */}
       <button
-        className="text-2xl text-white hover:text-yellow-300 transition-transform transform hover:scale-110"
+        className="text-2xl text-white hover:text-[#000000] transition-transform transform hover:scale-110"
         onClick={() => setSidebarVisible((prev) => !prev)}
       >
         {sidebarVisible ? <FaTimes /> : <FaBars />}

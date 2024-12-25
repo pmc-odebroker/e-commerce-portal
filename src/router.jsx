@@ -13,6 +13,7 @@ import VendorDetail from './pages/admin/VendorDetails';
 import CustomersList from './pages/admin/CustomersList';
 import CustomerDetail from './pages/admin/CustomerDetails';
 import OrdersAdmin from './pages/admin/OrdersAdmin';
+import Categories from './pages/admin/Categories';
 
 // Vendor Pages
 import ProductsVendor from './pages/vendor/ProductsVendor';
@@ -47,6 +48,7 @@ export const router = createBrowserRouter([
       { path: PATH.ADMIN_CUSTOMERS, element: <CustomersList /> },
       { path: PATH.ADMIN_CUSTOMER_DETAIL(':id'), element: <CustomerDetail /> },
       { path: PATH.ADMIN_ORDERS, element: <OrdersAdmin /> },
+      { path: PATH.ADMIN_CATEGORIES, element: <Categories /> },
     ]
   },
 

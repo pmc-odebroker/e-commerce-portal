@@ -1,4 +1,5 @@
 import axios from "axios";
+import { PATH } from "./PATH";
 
 const axiosClient = axios.create({
     baseURL: "http://localhost:8080/api/v1",
@@ -7,13 +8,18 @@ const axiosClient = axios.create({
     },
 });
 
-axiosClient.interceptors.request.use((config) => {
-    const token = localStorage.getItem('ACCESS_TOKEN');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+axiosClient.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('ACCESS_TOKEN');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
     }
-    return config;
-});
+);
 
 axiosClient.interceptors.response.use(
     (response) => {
@@ -22,12 +28,14 @@ axiosClient.interceptors.response.use(
     (error) => {
         const { response } = error;
 
-        if (response && response.status === 401) {
+        if (response && (response.status === 401 || response.status === 403)) {
             localStorage.removeItem("ACCESS_TOKEN");
+            
+            window.location.href = PATH.AUTH_VENDOR_LOGIN; 
         }
 
-        throw error;
-    } 
+        return Promise.reject(error);
+    }
 );
 
 export default axiosClient;

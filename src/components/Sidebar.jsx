@@ -1,11 +1,17 @@
-import { NavLink } from "react-router-dom";
-import { FaHome, FaUsers, FaBox, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { NavLink, useLocation } from "react-router-dom";
+import { FaHome, FaUsers, FaBox, FaChevronDown, FaChevronUp, FaShoppingCart, FaCog, FaTags } from "react-icons/fa";
+import { MENU_CONFIG } from "../constants/MENU";
 
 export default function Sidebar({ toggleSubMenu, subMenuOpen, PATH, sidebarVisible, role }) {
     if (!sidebarVisible) return null;
+
+    const location = useLocation();
   
     const isAdmin = role === "SUPERADMIN";
     const isVendor = role === "VENDOR";
+
+    const isSubMenuActive = (menuKey) =>
+    MENU_CONFIG[menuKey]?.some((path) => location.pathname.startsWith(path));
   
     return (
       <aside className="sidebar bg-white p-4 shadow-md h-screen flex flex-col">
@@ -32,7 +38,9 @@ export default function Sidebar({ toggleSubMenu, subMenuOpen, PATH, sidebarVisib
                 {/* Vendors Section */}
                 <li>
                   <div
-                    className="flex items-center justify-between p-3 rounded-md cursor-pointer"
+                    className={`flex items-center justify-between p-3 rounded-md cursor-pointer ${
+                      isSubMenuActive("vendors") ? "active" : ""
+                    }`}
                     onClick={() => toggleSubMenu("vendors")}
                   >
                     <div className="flex items-center gap-3">
@@ -79,6 +87,37 @@ export default function Sidebar({ toggleSubMenu, subMenuOpen, PATH, sidebarVisib
                     <span>Orders</span>
                   </NavLink>
                 </li>
+
+                {/* Settings Section */}
+                <li>
+                  <div
+                    className={`flex items-center justify-between p-3 rounded-md cursor-pointer ${
+                      isSubMenuActive("settings") ? "active" : ""
+                    }`}
+                    onClick={() => toggleSubMenu("settings")}
+                  >
+                    <div className="flex items-center gap-3">
+                      <FaCog className="text-xl" />
+                      <span>Settings</span>
+                    </div>
+                    {subMenuOpen.settings ? <FaChevronUp /> : <FaChevronDown />}
+                  </div>
+                  {subMenuOpen.settings && (
+                    <ul className="ml-8">
+                      <li>
+                        <NavLink
+                          to={PATH.ADMIN_CATEGORIES}
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
+                          }
+                        >
+                          <FaTags className="text-xl" />
+                          <span>Categories</span>
+                        </NavLink>
+                      </li>
+                    </ul>
+                  )}
+                </li>
               </>
             ) : isVendor ? (
               <>
@@ -88,8 +127,9 @@ export default function Sidebar({ toggleSubMenu, subMenuOpen, PATH, sidebarVisib
                     className={({ isActive }) =>
                       `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
                     }
-                  >
-                    Dashboard
+                  > 
+                  <FaHome className="text-xl" />
+                    <span>Dashboard</span>
                   </NavLink>
                 </li>
                 <li>
@@ -99,7 +139,8 @@ export default function Sidebar({ toggleSubMenu, subMenuOpen, PATH, sidebarVisib
                       `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
                     }
                   >
-                    Products
+                    <FaBox className="text-xl" />
+                    <span>Products</span>
                   </NavLink>
                 </li>
                 <li>
@@ -109,7 +150,8 @@ export default function Sidebar({ toggleSubMenu, subMenuOpen, PATH, sidebarVisib
                       `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
                     }
                   >
-                    Orders
+                    <FaShoppingCart className="text-xl" />
+                    <span>Orders</span>
                   </NavLink>
                 </li>
               </>
