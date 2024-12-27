@@ -5,7 +5,7 @@ import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import axiosConfig from "../../constants/AXIOS_CONFIG";
 import API from "../../constants/API";
 
-const Categories = () => {
+const ProductStatus = () => {
   const [dataSource, setDataSource] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingKey, setEditingKey] = useState("");
@@ -15,25 +15,25 @@ const Categories = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [pagination, setPagination] = useState({ pageSize: 5, current: 1 });
 
-  // Fetch categories on mount
+  // Fetch product statuses on mount
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchProductStatuses = async () => {
       try {
-        const response = await axiosConfig.get(API.CATEGORIES);
-        const categories = response.data.map((item) => ({
+        const response = await axiosConfig.get(API.PRODUCT_STATUSES);
+        const productStatuses = response.data.map((item) => ({
           ...item,
           key: item.id,
         }));
-        setDataSource(categories);
-        setFilteredData(categories);
+        setDataSource(productStatuses);
+        setFilteredData(productStatuses);
       } catch (error) {
-        message.error("Failed to fetch categories");
+        message.error("Failed to fetch product statuses");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCategories();
+    fetchProductStatuses();
   }, []);
 
   // Start editing a row
@@ -47,18 +47,17 @@ const Categories = () => {
   };
 
   // Save edited changes
-  const saveEdit = async (key) => {
+  const handleUpdateProductStatus = async (key) => {
     const row = dataSource.find((item) => item.key === key);
     try {
-      await axiosConfig.put(`${API.CATEGORIES}/${key}`, row);
-      message.success("Category updated successfully");
+      await axiosConfig.put(`${API.PRODUCT_STATUSES}/${key}`, row);
+      message.success("Product status updated successfully");
       setEditingKey("");
     } catch (error) {
-      message.error("Failed to update category");
+      message.error("Failed to update product status");
     }
   };
 
-  // Handle cell value change
   const handleInputChange = (key, column, value) => {
     const newData = [...dataSource];
     const index = newData.findIndex((item) => item.key === key);
@@ -68,36 +67,37 @@ const Categories = () => {
     }
   };
 
-  // Delete a category
-  const handleDelete = async (key) => {
-    try {
-      await axiosConfig.delete(`${API.CATEGORIES}/${key}`);
-      const newData = dataSource.filter((item) => item.key !== key);
-      setDataSource(newData);
-      setFilteredData(newData);
-      message.success("Category deleted successfully");
-    } catch (error) {
-      message.error("Failed to delete category");
-    }
-  };
-
   // Add new category
-  const handleAddCategory = async () => {
+  const handleAddProductStatus = async () => {
     const values = await form.validateFields();
     try {
-      const response = await axiosConfig.post(API.CATEGORIES, values);
-      const createdCategory = response.data;
+      const response = await axiosConfig.post(API.PRODUCT_STATUSES, values);
+      const createdProductStatus = response.data;
       const updatedData = [
         ...dataSource,
-        { ...createdCategory, key: createdCategory.id },
+        { ...createdProductStatus, key: createdProductStatus.id },
       ];
       setDataSource(updatedData);
       setFilteredData(updatedData);
-      message.success("Category added successfully");
+      message.success("Product status added successfully");
       form.resetFields();
       setIsModalVisible(false);
     } catch (error) {
-      message.error("Failed to add category");
+      message.error("Failed to add product status");
+    }
+  };
+  
+
+  // Delete a product status
+  const handleDelete = async (key) => {
+    try {
+      await axiosConfig.delete(`${API.PRODUCT_STATUSES}/${key}`);
+      const newData = dataSource.filter((item) => item.key !== key);
+      setDataSource(newData);
+      setFilteredData(newData);
+      message.success("Product status deleted successfully");
+    } catch (error) {
+      message.error("Failed to delete product status");
     }
   };
 
@@ -106,7 +106,7 @@ const Categories = () => {
     setSearchText(value);
     const filtered = dataSource.filter(
       (item) =>
-        item.name.toLowerCase().includes(value.toLowerCase()) ||
+        item.statusName.toLowerCase().includes(value.toLowerCase()) ||
         item.description.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredData(filtered);
@@ -120,18 +120,18 @@ const Categories = () => {
   // Columns definition
   const columns = [
     {
-      title: "Category Name",
-      dataIndex: "name",
+      title: "Name",
+      dataIndex: "statusName",
       render: (_, record) =>
         editingKey === record.key ? (
-          <Input
-            defaultValue={record.name}
+            <Input
+            defaultValue={record.statusName}
             onChange={(e) =>
-              handleInputChange(record.key, "name", e.target.value)
+              handleInputChange(record.key, "statusName", e.target.value)
             }
           />
         ) : (
-          record.name
+          record.statusName
         ),
     },
     {
@@ -139,7 +139,7 @@ const Categories = () => {
       dataIndex: "description",
       render: (_, record) =>
         editingKey === record.key ? (
-          <Input
+            <Input
             defaultValue={record.description}
             onChange={(e) =>
               handleInputChange(record.key, "description", e.target.value)
@@ -157,7 +157,7 @@ const Categories = () => {
           <span>
             <Button
               type="link"
-              onClick={() => saveEdit(record.key)}
+              onClick={() => handleUpdateProductStatus(record.key)}
               style={{ marginRight: 8 }}
             >
               Save
@@ -175,7 +175,7 @@ const Categories = () => {
               style={{ marginRight: 8 }}
             />
             <Popconfirm
-              title="Are you sure to delete this category?"
+              title="Are you sure to delete this product status?"
               onConfirm={() => handleDelete(record.key)}
             >
               <Button icon={<FaTrashAlt />} size="small" danger />
@@ -189,72 +189,61 @@ const Categories = () => {
   return (
     <div className="p-6 bg-white">
       <Breadcrumb />
-  
-      {/* Header Section */}
       <div className="row flex justify-between mt-2">
-        <h3 className="text-2xl font-semibold">Categories</h3>
+        <h3 className="text-2xl font-semibold">Product Statuses</h3>
         <Button type="primary" onClick={() => setIsModalVisible(true)}>
-          Add Category
+          Add Product Status
         </Button>
       </div>
-  
-      {/* Table Section */}
-      <div className="mt-2">
-        <Table
-          dataSource={filteredData}
-          loading={loading}
-          columns={columns}
-          rowClassName="editable-row"
-          pagination={{
-            pageSize: pagination.pageSize,
-            current: pagination.current,
-            onChange: handlePaginationChange,
-          }}
-          title={() => (
+      <Table
+        dataSource={filteredData}
+        loading={loading}
+        columns={columns}
+        rowClassName="editable-row"
+        pagination={{
+          pageSize: pagination.pageSize,
+          current: pagination.current,
+          onChange: handlePaginationChange,
+        }}
+        title={() => (
             <div className="flex justify-between">
-              <Select
-                defaultValue={5}
-                onChange={(value) => handlePaginationChange(pagination.current, value)}
-                options={[
-                  { label: "5", value: 5 },
-                  { label: "10", value: 10 },
-                  { label: "20", value: 20 },
-                ]}
-                style={{ marginRight: 10, width: 100 }}
-              />
-              <Input.Search
-                placeholder="Search categories"
-                value={searchText}
-                onChange={(e) => handleSearch(e.target.value)}
-                style={{ width: 300 }}
-              />
-            </div>
-          )}
-        />
-      </div>
-  
-      {/* Modal Section */}
+            <Select
+              defaultValue={5}
+              onChange={(value) => handlePaginationChange(pagination.current, value)}
+              options={[
+                { label: "5", value: 5 },
+                { label: "10", value: 10 },
+                { label: "20", value: 20 },
+              ]}
+              style={{ marginRight: 10, width: 100 }}
+            />
+            <Input.Search
+              placeholder="Search status"
+              value={searchText}
+              onChange={(e) => handleSearch(e.target.value)}
+              style={{ width: 300 }}
+            />
+          </div>
+        )}
+      />
       <Modal
-        title="Add New Category"
+        title="Add Product Status"
         open={isModalVisible}
-        onOk={handleAddCategory}
+        onOk={handleAddProductStatus}
         onCancel={() => setIsModalVisible(false)}
-        confirmLoading={loading}
       >
         <Form form={form} layout="vertical">
           <Form.Item
-            label="Category Name"
-            name="name"
-            rules={[{ required: true, message: "Please input category name!" }]}
+            label="Name"
+            name="statusName"
+            rules={[{ required: true, message: "Please input name!" }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             label="Description"
             name="description"
-            rules={[
-              { required: true, message: "Please input category description!" },
-            ]}
+            rules={[{ required: true, message: "Please input description!" }]}
           >
             <Input.TextArea />
           </Form.Item>
@@ -262,7 +251,6 @@ const Categories = () => {
       </Modal>
     </div>
   );
-  
 };
 
-export default Categories;
+export default ProductStatus;

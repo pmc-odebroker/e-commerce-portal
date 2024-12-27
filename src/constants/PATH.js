@@ -7,6 +7,7 @@ export const PATH = {
   ADMIN_CUSTOMERS: '/admin/customers',
   ADMIN_CUSTOMER_DETAIL: (id) => `/admin/customer/${id}`,
   ADMIN_CATEGORIES: '/admin/categories',
+  ADMIN_PRODUCT_STATUSES: '/admin/product-statuses',
   ADMIN_ORDERS: '/admin/orders',
 
   // Vendor routes

@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { FaHome, FaUsers, FaBox, FaChevronDown, FaChevronUp, FaShoppingCart, FaCog, FaTags } from "react-icons/fa";
+import { FaHome, FaUsers, FaBox, FaChevronDown, FaChevronUp, FaShoppingCart, FaCog, FaTags, FaListAlt } from "react-icons/fa";
 import { MENU_CONFIG } from "../constants/MENU";
 
 export default function Sidebar({ toggleSubMenu, subMenuOpen, PATH, sidebarVisible, role }) {
@@ -113,6 +113,17 @@ export default function Sidebar({ toggleSubMenu, subMenuOpen, PATH, sidebarVisib
                         >
                           <FaTags className="text-xl" />
                           <span>Categories</span>
+                        </NavLink>
+                      </li>
+                      <li>
+                        <NavLink
+                          to={PATH.ADMIN_PRODUCT_STATUSES}
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
+                          }
+                        >
+                          <FaListAlt className="text-xl" />
+                          <span>Product Statuses</span>
                         </NavLink>
                       </li>
                     </ul>

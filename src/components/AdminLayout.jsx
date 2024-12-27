@@ -4,9 +4,9 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import Footer from "./Footer";
 import { useStateContext } from "../contexts/ContextProvider";
-import axiosClient from "../constants/AXIOS_CONFIG";
+import axiosConfig from "../constants/AXIOS_CONFIG";
 import { PATH } from "../constants/PATH";
-import API_ENDPOINTS from "../constants/API_ENDPOINTS";
+import API from "../constants/API";
 
 export default function AdminLayout() {
   const { user, token, setUser, setToken } = useStateContext();
@@ -37,7 +37,7 @@ export default function AdminLayout() {
   const onLogout = async (ev) => {
     ev.preventDefault();
     try {
-      await axiosClient.post(API_ENDPOINTS.LOGOUT);
+      await axiosConfig.post(API.LOGOUT);
       setUser(null);
       setToken(null);
       localStorage.removeItem("USER_DATA");

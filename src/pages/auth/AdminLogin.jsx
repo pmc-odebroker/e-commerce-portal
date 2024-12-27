@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
-import axiosClient from "../../constants/AXIOS_CONFIG";
-import API_ENDPOINTS from "../../constants/API_ENDPOINTS";
+import axiosConfig from "../../constants/AXIOS_CONFIG";
+import API from "../../constants/API";
 import { useStateContext } from "../../contexts/ContextProvider";
 import { useNavigate } from "react-router-dom";
 import { PATH } from "../../constants/PATH";
@@ -24,8 +24,8 @@ function AdminLogin() {
       password: passwordRef.current.value
     }
 
-    axiosClient
-      .post(API_ENDPOINTS.ADMIN_LOGIN, payload)
+    axiosConfig
+      .post(API.ADMIN_LOGIN, payload)
       .then(({ data }) => {
         setUser(data.user);
         setToken(data.token);

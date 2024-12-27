@@ -1,14 +1,14 @@
 import axios from "axios";
 import { PATH } from "./PATH";
 
-const axiosClient = axios.create({
+const axiosConfig = axios.create({
     baseURL: "http://localhost:8080/api/v1",
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-axiosClient.interceptors.request.use(
+axiosConfig.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('ACCESS_TOKEN');
         if (token) {
@@ -21,7 +21,7 @@ axiosClient.interceptors.request.use(
     }
 );
 
-axiosClient.interceptors.response.use(
+axiosConfig.interceptors.response.use(
     (response) => {
         return response;
     },
@@ -38,4 +38,4 @@ axiosClient.interceptors.response.use(
     }
 );
 
-export default axiosClient;
+export default axiosConfig;

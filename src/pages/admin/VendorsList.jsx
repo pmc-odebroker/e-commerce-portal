@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Table, Input, Button, Popconfirm, message, Modal, Form, Select } from "antd";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import Breadcrumb from "../../components/Breadcrumb";
-import API_ENDPOINTS from "../../constants/API_ENDPOINTS";
-import axiosClient from "../../constants/AXIOS_CONFIG";
+import API from "../../constants/API";
+import axiosConfig from "../../constants/AXIOS_CONFIG";
 
 export default function VendorsList() {
   const [dataSource, setDataSource] = useState([]);
@@ -15,12 +15,11 @@ export default function VendorsList() {
   const [filteredData, setFilteredData] = useState([]);
   const [pagination, setPagination] = useState({ pageSize: 5, current: 1 });
 
-  // Fetch categories on mount
+  // Fetch vendors on mount
   useEffect(() => {
-    const fetchvendors = async () => {
+    const fetchVendors = async () => {
       try {
-        const response = await axiosClient.get(API_ENDPOINTS.VENDORS);
-        console.log("data are", response);
+        const response = await axiosConfig.get(API.VENDORS);
         const vendors = response.data.map((item) => ({
           ...item,
           key: item.id,
@@ -28,14 +27,13 @@ export default function VendorsList() {
         setDataSource(vendors);
         setFilteredData(vendors);
       } catch (error) {
-        console.error("Error fetching vendors", error);
         message.error("Failed to fetch vendors");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchvendors();
+    fetchVendors();
   }, []);
 
   // Start editing a row
@@ -51,12 +49,18 @@ export default function VendorsList() {
   // Save edited changes
   const saveEdit = async (key) => {
     const row = dataSource.find((item) => item.key === key);
+    const updatedRow = {
+      ...row,
+      firstName: row.user.firstName || "",
+      lastName: row.user.lastName || "",
+      email: row.user.email || "",
+    };
+
     try {
-      await axiosClient.put(`${API_ENDPOINTS.VENDORS}/${key}`, row);
+      await axiosConfig.put(`${API.VENDORS}/${key}`, updatedRow);
       message.success("Vendor updated successfully");
       setEditingKey("");
     } catch (error) {
-      console.error("Error updating vendor", error);
       message.error("Failed to update vendor");
     }
   };
@@ -66,7 +70,11 @@ export default function VendorsList() {
     const newData = [...dataSource];
     const index = newData.findIndex((item) => item.key === key);
     if (index > -1) {
-      newData[index][column] = value;
+      if (["firstName", "lastName", "email"].includes(column)) {
+        newData[index].user[column] = value;
+      } else {
+        newData[index][column] = value;
+      }
       setDataSource(newData);
     }
   };
@@ -74,13 +82,12 @@ export default function VendorsList() {
   // Delete a vendor
   const handleDelete = async (key) => {
     try {
-      await axiosClient.delete(`${API_ENDPOINTS.VENDORS}/${key}`);
+      await axiosConfig.delete(`${API.VENDORS}/${key}`);
       const newData = dataSource.filter((item) => item.key !== key);
       setDataSource(newData);
       setFilteredData(newData);
       message.success("Vendor deleted successfully");
     } catch (error) {
-      console.error("Error deleting vendor", error);
       message.error("Failed to delete vendor");
     }
   };
@@ -89,7 +96,7 @@ export default function VendorsList() {
   const handleAddVendor = async () => {
     const values = await form.validateFields();
     try {
-      const response = await axiosClient.post(API_ENDPOINTS.VENDORS, values);
+      const response = await axiosConfig.post(API.VENDORS, values);
       const createdVendor = response.data;
       const updatedData = [
         ...dataSource,
@@ -101,10 +108,16 @@ export default function VendorsList() {
       form.resetFields();
       setIsModalVisible(false);
     } catch (error) {
-      console.error("Error adding vendor", error);
-      message.error("Failed to add vendor");
+      if (error.response && error.response.data) {
+        const { msg } = error.response.data;
+  
+        message.error(msg);
+      } else {
+        message.error("An unexpected error occurred");
+      }
     }
   };
+  
 
   // Handle search
   const handleSearch = (value) => {
@@ -126,13 +139,13 @@ export default function VendorsList() {
   const columns = [
     {
       title: "First Name",
-      dataIndex: "firstname",
+      dataIndex: "user.firstName",
       render: (_, record) =>
         editingKey === record.key ? (
           <Input
             defaultValue={record.user.firstName}
             onChange={(e) =>
-              handleInputChange(record.key, "firstname", e.target.value)
+              handleInputChange(record.key, "firstName", e.target.value)
             }
           />
         ) : (
@@ -141,13 +154,13 @@ export default function VendorsList() {
     },
     {
       title: "Last Name",
-      dataIndex: "lastname",
+      dataIndex: "user.lastName",
       render: (_, record) =>
         editingKey === record.key ? (
           <Input
             defaultValue={record.user.lastName}
             onChange={(e) =>
-              handleInputChange(record.key, "lastname", e.target.value)
+              handleInputChange(record.key, "lastName", e.target.value)
             }
           />
         ) : (
@@ -156,7 +169,7 @@ export default function VendorsList() {
     },
     {
       title: "Email",
-      dataIndex: "email",
+      dataIndex: "user.email",
       render: (_, record) =>
         editingKey === record.key ? (
           <Input
@@ -209,16 +222,14 @@ export default function VendorsList() {
   return (
     <div className="p-6 bg-white">
       <Breadcrumb />
-  
-      {/* Header Section */}
+
       <div className="row flex justify-between mt-2">
         <h3 className="text-2xl font-semibold">Vendors List</h3>
         <Button type="primary" onClick={() => setIsModalVisible(true)}>
           Add Vendor
         </Button>
       </div>
-  
-      {/* Table Section */}
+
       <div className="mt-2">
         <Table
           dataSource={filteredData}
@@ -252,8 +263,7 @@ export default function VendorsList() {
           )}
         />
       </div>
-  
-      {/* Modal Section */}
+
       <Modal
         title="Add New Vendor"
         open={isModalVisible}
@@ -264,14 +274,14 @@ export default function VendorsList() {
         <Form form={form} layout="vertical">
           <Form.Item
             label="First Name"
-            name="firstname"
+            name="firstName"
             rules={[{ required: true, message: "Please input first name!" }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             label="Last Name"
-            name="lastname"
+            name="lastName"
             rules={[{ required: true, message: "Please input last name!" }]}
           >
             <Input />
@@ -283,10 +293,8 @@ export default function VendorsList() {
           >
             <Input />
           </Form.Item>
-          
         </Form>
       </Modal>
     </div>
   );
-  
-};
+}

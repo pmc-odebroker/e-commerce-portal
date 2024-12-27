@@ -1,6 +1,8 @@
-const API_ENDPOINTS = {
+const API = {
     ADMIN_LOGIN: "/auth/admin/login",
     CATEGORIES: "/admin/categories",
+    PRODUCT_STATUSES: "/admin/product-statuses",
+    PRODUCTS: "/admin/products",
     VENDOR_LOGIN: "/auth/vendor/login",
     VENDOR_REGISTER: "/auth/vendor/register",
     VENDORS: "admin/vendors",
@@ -9,5 +11,5 @@ const API_ENDPOINTS = {
     LOGOUT: "/auth/logout"
   };
   
-  export default API_ENDPOINTS;
+  export default API;
   

@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import axiosClient from '../../constants/AXIOS_CONFIG'
-import API_ENDPOINTS from '../../constants/API_ENDPOINTS'
+import axiosConfig from '../../constants/AXIOS_CONFIG'
+import API from '../../constants/API'
 import { useStateContext } from '../../contexts/ContextProvider'
 import { useNavigate } from "react-router-dom";
 import { PATH } from '../../constants/PATH'
@@ -25,8 +25,8 @@ function VendorLogin() {
       password: passwordRef.current.value
     }
 
-    axiosClient
-      .post(API_ENDPOINTS.VENDOR_LOGIN, payload)
+    axiosConfig
+      .post(API.VENDOR_LOGIN, payload)
       .then(({ data }) => {
         setUser(data.user);
         setToken(data.token);
