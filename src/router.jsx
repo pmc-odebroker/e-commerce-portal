@@ -17,9 +17,9 @@ import Categories from './pages/admin/Categories';
 import ProductStatus from './pages/admin/ProductStatus';
 
 // Vendor Pages
-import ProductsVendor from './pages/vendor/ProductsVendor';
+import VendorProducts from './pages/vendor/VendorProducts';
 import OrdersVendor from './pages/vendor/OrdersVendor';
-import VendorProfile from './pages/vendor/ProfileVendor';
+import VendorProfile from './pages/vendor/VendorProfile';
 
 // Auth Pages (for login/signup)
 import AdminLogin from './pages/auth/AdminLogin';
@@ -63,7 +63,7 @@ export const router = createBrowserRouter([
     children: [
       { path: '', element: <Navigate to={PATH.VENDOR_DASHBOARD} /> },
       { path: PATH.VENDOR_DASHBOARD, element: <VendorDashboard /> },
-      { path: PATH.VENDOR_PRODUCTS, element: <ProductsVendor /> },
+      { path: PATH.VENDOR_PRODUCTS, element: <VendorProducts /> },
       { path: PATH.VENDOR_ORDERS, element: <OrdersVendor /> },
       { path: PATH.VENDOR_PROFILE, element: <VendorProfile /> }
     ]
