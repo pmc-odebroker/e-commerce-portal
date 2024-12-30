@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Input, Button, Popconfirm, message, Modal, Form, Select } from "antd";
+import { Table, Input, Button, Popconfirm, message, Modal, Form, Select, Upload } from "antd";
 import Breadcrumb from "../../components/Breadcrumb";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import axiosConfig from "../../constants/AXIOS_CONFIG";
@@ -8,6 +8,7 @@ import API from "../../constants/API";
 const VendorProducts = () => {
   const [dataSource, setDataSource] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [file, setFile] = useState(null);
   const [editingKey, setEditingKey] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
@@ -26,11 +27,14 @@ const VendorProducts = () => {
           axiosConfig.get(API.CATEGORIES),
           axiosConfig.get(API.PRODUCT_STATUSES),
         ]);
+        console.log("productRes data are,", productsRes.data);
 
         const products = productsRes.data.map((item) => ({
           ...item,
           key: item.id,
         }));
+        console.log("products are,", products);
+
         setDataSource(products);
         setFilteredData(products);
         setCategories(categoriesRes.data);
@@ -91,10 +95,25 @@ const VendorProducts = () => {
   };
 
   // Add new product
-  const handleAddProduct = async () => {
-    const values = await form.validateFields();
+const handleAddProduct = async () => {
+  const values = await form.validateFields();
+  
+  // Check if the file is selected, if so, append it to FormData
+  if (file) {
+    const formData = new FormData();
+    formData.append("name", values.name);
+    formData.append("description", values.description);
+    formData.append("price", values.price);
+    formData.append("categoryId", values.categoryId);
+    formData.append("productStatusId", values.productStatusId);
+    formData.append("imageUrl", file);
+
     try {
-      const response = await axiosConfig.post(API.VENDOR_PRODUCTS, values);
+      const response = await axiosConfig.post(API.VENDOR_PRODUCTS, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       const createdProduct = response.data;
       const updatedData = [
         ...dataSource,
@@ -104,11 +123,15 @@ const VendorProducts = () => {
       setFilteredData(updatedData);
       message.success("Product added successfully");
       form.resetFields();
+      setFile(null);
       setIsModalVisible(false);
     } catch (error) {
       message.error("Failed to add product");
     }
-  };
+  } else {
+    message.error("Please upload a product image.");
+  }
+};
 
   // Handle search
   const handleSearch = (value) => {
@@ -170,29 +193,13 @@ const VendorProducts = () => {
             }
           />
         ) : (
-          `$${record.price.toFixed(2)}`
+          record.price
         ),
     },
     {
       title: "Category",
-      dataIndex: ["category", "name"],
-      render: (name) => name || "N/A",
-    },
-    {
-      title: "Vendor",
-      dataIndex: ["vendor", "name"],
-      render: (firstName) => firstName || "N/A",
-    },
-    {
-      title: "Vendor",
-      dataIndex: ["vendor", "user"],
-      render: (user) => {
-        if (user) {
-          const { firstName, lastName } = user;
-          return `${firstName} ${lastName}`;
-        }
-        return "N/A";
-      },
+      dataIndex: ["categoryName"],
+      render: (categoryName) => categoryName || "N/A",
     },
     {
       title: "Actions",
@@ -329,6 +336,21 @@ const VendorProducts = () => {
                 value: status.id,
               }))}
             />
+          </Form.Item>
+          <Form.Item
+            label="Product Image"
+            name="imageUrl"
+          >
+            <Upload
+              fileList={file ? [file] : []}
+              beforeUpload={(file) => {
+                setFile(file);
+                return false; 
+              }}
+              showUploadList={false}
+            >
+              <Button>Click to upload</Button>
+            </Upload>
           </Form.Item>
         </Form>
       </Modal>
