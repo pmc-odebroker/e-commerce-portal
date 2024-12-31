@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Table, Input, Button, Popconfirm, message, Modal, Form, Select, Upload } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import Breadcrumb from "../../components/Breadcrumb";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import axiosConfig from "../../constants/AXIOS_CONFIG";
 import API from "../../constants/API";
+import defaultProductImage from "../../assets/product-image.jpg";
 
 const VendorProducts = () => {
   const [dataSource, setDataSource] = useState([]);
@@ -12,11 +14,18 @@ const VendorProducts = () => {
   const [editingKey, setEditingKey] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const [imageSource, setImageSource] = useState("upload");
   const [searchText, setSearchText] = useState("");
   const [filteredData, setFilteredData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [productStatuses, setProductStatuses] = useState([]);
   const [pagination, setPagination] = useState({ pageSize: 5, current: 1 });
+
+  const handleSourceChange = (value) => {
+    setImageSource(value);
+    setFile(null);
+    form.setFieldsValue({ imageFile: undefined, imageUrl: undefined });
+  };
 
   // Fetch Products and related data on mount
   useEffect(() => {
@@ -94,20 +103,42 @@ const VendorProducts = () => {
     }
   };
 
+  // Validate image uploaded
+  const validateFile = (rule, value) => {
+    if (!file) {
+      return Promise.reject(new Error("Please upload an image!"));
+    }
+    if (file.type !== "image/png" && file.type !== "image/jpeg") {
+      return Promise.reject(new Error("Only PNG or JPEG images are allowed!"));
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      return Promise.reject(new Error("File size must not exceed 2MB!"));
+    }
+    return Promise.resolve();
+  };
+
   // Add new product
-const handleAddProduct = async () => {
-  const values = await form.validateFields();
+  const handleAddProduct = async () => {
+    const values = await form.validateFields();
   
-  // Check if the file is selected, if so, append it to FormData
-  if (file) {
     const formData = new FormData();
     formData.append("name", values.name);
     formData.append("description", values.description);
     formData.append("price", values.price);
     formData.append("categoryId", values.categoryId);
     formData.append("productStatusId", values.productStatusId);
-    formData.append("imageUrl", file);
+  
+    if (values.imageSource === "upload" && file) {
+      formData.append("imageFile", file);
+    } else if (values.imageSource === "url") {
+      formData.append("imageUrl", values.imageUrl);
+    } else {
+      message.error("Please provide a valid image source.");
+      return;
+    }
 
+    console.log("the form data are", formData);
+  
     try {
       const response = await axiosConfig.post(API.VENDOR_PRODUCTS, formData, {
         headers: {
@@ -128,10 +159,7 @@ const handleAddProduct = async () => {
     } catch (error) {
       message.error("Failed to add product");
     }
-  } else {
-    message.error("Please upload a product image.");
-  }
-};
+  };
 
   // Handle search
   const handleSearch = (value) => {
@@ -150,6 +178,39 @@ const handleAddProduct = async () => {
   };
 
   const columns = [
+    {
+      title: "Image",
+      dataIndex: "imageUrl",
+      key: "imageUrl",
+      render: (text) => {
+        // Check if the imageUrl is null or empty
+        if (!text) {
+          return (
+            <img
+              src={defaultProductImage}
+              alt="Default Placeholder"
+              style={{ width: 50, height: 50, objectFit: "cover" }}
+            />
+          );
+        }
+    
+        const isOnlineLink = text && text.startsWith("http");
+        const imageSrc = isOnlineLink
+          ? text
+          : `http://localhost:8080/uploads/${text.split('/uploads/').pop()}`; // Ensure proper path
+    
+        return (
+          <img
+            src={imageSrc}
+            alt="Product"
+            style={{ width: 50, height: 50, objectFit: "cover" }}
+            onError={(e) => {
+              e.target.src = defaultProductImage;
+            }}
+          />
+        );
+      },
+    },
     {
       title: "Product Name",
       dataIndex: "name",
@@ -338,20 +399,74 @@ const handleAddProduct = async () => {
             />
           </Form.Item>
           <Form.Item
-            label="Product Image"
-            name="imageUrl"
+            label="Image Source"
+            name="imageSource"
+            initialValue="upload"
+            rules={[{ required: true, message: "Please select an image source!" }]}
           >
-            <Upload
-              fileList={file ? [file] : []}
-              beforeUpload={(file) => {
-                setFile(file);
-                return false; 
-              }}
-              showUploadList={false}
-            >
-              <Button>Click to upload</Button>
-            </Upload>
+            <Select
+              defaultValue="upload"
+              options={[
+                { label: "Upload File", value: "upload" },
+                { label: "Provide URL", value: "url" },
+              ]}
+              onChange={handleSourceChange}
+            />
           </Form.Item>
+
+          {imageSource === "upload" ? (
+            <Form.Item
+              label="Product Image (Upload)"
+              name="imageFile"
+              rules={[
+                { required: true, message: "Please upload an image!" },
+                { validator: validateFile },
+              ]}
+            >
+              <div style={{ display: "flex", alignItems: "center" }}>
+              <Input
+                value={file ? file.name : ""}
+                readOnly
+                placeholder="No file selected"
+                style={{ marginRight: "10px", flex: 1 }}
+              />
+              <Upload
+                beforeUpload={(file) => {
+                  setFile(file);
+                  return false;
+                }}
+                showUploadList={false}
+                accept="image/png,image/jpeg"
+              >
+                <Button icon={<UploadOutlined />}>Choose File</Button>
+              </Upload>
+            </div>
+            </Form.Item>
+          ) : (
+            <Form.Item
+              label="Product Image URL"
+              name="imageUrl"
+              rules={[
+                {
+                  type: "url",
+                  message: "Please provide a valid URL!",
+                  required: true,
+                },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(value)) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error("The URL must point to a valid image file (e.g., .jpg, .png)!")
+                    );
+                  },
+                }),
+              ]}
+            >
+          <Input placeholder="Enter image URL" />
+          </Form.Item>
+          )}
         </Form>
       </Modal>
     </div>
