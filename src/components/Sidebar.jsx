@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { FaHome, FaUsers, FaBox, FaChevronDown, FaChevronUp, FaShoppingCart, FaCog, FaTags, FaListAlt } from "react-icons/fa";
-import { MENU_CONFIG } from "../constants/MENU";
+import { FaUsers, FaChevronDown, FaChevronUp, FaShoppingCart, FaCog, FaTags, FaListAlt, FaTachometerAlt, FaBoxes, FaUserAlt,
+  FaWarehouse, FaTicketAlt, FaBolt, FaImage, FaStar, FaThumbsUp, FaEnvelope, FaUndo, FaStore, FaMoneyCheckAlt ,FaClipboardList, FaTasks} from "react-icons/fa";
+import { MENU } from "../constants/MENU";
 
 export default function Sidebar({ toggleSubMenu, subMenuOpen, PATH, sidebarVisible, role }) {
     if (!sidebarVisible) return null;
@@ -11,7 +12,7 @@ export default function Sidebar({ toggleSubMenu, subMenuOpen, PATH, sidebarVisib
     const isVendor = role === "VENDOR";
 
     const isSubMenuActive = (menuKey) =>
-    MENU_CONFIG[menuKey]?.some((path) => location.pathname.startsWith(path));
+    MENU[menuKey]?.some((path) => location.pathname.startsWith(path));
   
     return (
       <aside className="sidebar bg-white p-4 shadow-md h-screen flex flex-col">
@@ -30,7 +31,7 @@ export default function Sidebar({ toggleSubMenu, subMenuOpen, PATH, sidebarVisib
                       `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
                     }
                   >
-                    <FaHome className="text-xl" />
+                    <FaTachometerAlt className="text-xl" />
                     <span>Dashboard</span>
                   </NavLink>
                 </li>
@@ -58,17 +59,10 @@ export default function Sidebar({ toggleSubMenu, subMenuOpen, PATH, sidebarVisib
                             `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
                           }
                         >
-                          Vendor List
-                        </NavLink>
-                      </li>
-                      <li>
-                        <NavLink
-                          to={PATH.ADMIN_VENDOR_DETAIL(":id")}
-                          className={({ isActive }) =>
-                            `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
-                          }
-                        >
-                          Vendor Details
+                          <div className="flex items-center gap-3">
+                            <FaUserAlt className="text-xl" />
+                            <span>Vendor List</span>
+                          </div>
                         </NavLink>
                       </li>
                     </ul>
@@ -83,7 +77,7 @@ export default function Sidebar({ toggleSubMenu, subMenuOpen, PATH, sidebarVisib
                       `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
                     }
                   >
-                    <FaBox className="text-xl" />
+                    <FaShoppingCart className="text-xl" />
                     <span>Orders</span>
                   </NavLink>
                 </li>
@@ -92,17 +86,17 @@ export default function Sidebar({ toggleSubMenu, subMenuOpen, PATH, sidebarVisib
                 <li>
                   <div
                     className={`flex items-center justify-between p-3 rounded-md cursor-pointer ${
-                      isSubMenuActive("settings") ? "active" : ""
+                      isSubMenuActive("admin_settings") ? "active" : ""
                     }`}
-                    onClick={() => toggleSubMenu("settings")}
+                    onClick={() => toggleSubMenu("admin_settings")}
                   >
                     <div className="flex items-center gap-3">
                       <FaCog className="text-xl" />
                       <span>Settings</span>
                     </div>
-                    {subMenuOpen.settings ? <FaChevronUp /> : <FaChevronDown />}
+                    {subMenuOpen.admin_settings ? <FaChevronUp /> : <FaChevronDown />}
                   </div>
-                  {subMenuOpen.settings && (
+                  {subMenuOpen.admin_settings && (
                     <ul className="ml-8">
                       <li>
                         <NavLink
@@ -138,8 +132,8 @@ export default function Sidebar({ toggleSubMenu, subMenuOpen, PATH, sidebarVisib
                     className={({ isActive }) =>
                       `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
                     }
-                  > 
-                  <FaHome className="text-xl" />
+                  >
+                    <FaTachometerAlt className="text-xl" />
                     <span>Dashboard</span>
                   </NavLink>
                 </li>
@@ -150,19 +144,223 @@ export default function Sidebar({ toggleSubMenu, subMenuOpen, PATH, sidebarVisib
                       `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
                     }
                   >
-                    <FaBox className="text-xl" />
+                    <FaBoxes className="text-xl" />
                     <span>Products</span>
                   </NavLink>
                 </li>
                 <li>
+                  <div
+                    className={`flex items-center justify-between p-3 rounded-md cursor-pointer ${
+                      isSubMenuActive("vendor_orders") ? "active" : ""
+                    }`}
+                    onClick={() => toggleSubMenu("vendor_orders")}
+                  >
+                    <div className="flex items-center gap-3">
+                      <FaShoppingCart className="text-xl" />
+                      <span>Orders</span>
+                    </div>
+                    {subMenuOpen.vendor_orders ? <FaChevronUp /> : <FaChevronDown />}
+                  </div>
+                  {subMenuOpen.vendor_orders && (
+                    <ul className="ml-8">
+                      <li>
+                        <NavLink
+                          to={PATH.VENDOR_ORDERS}
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
+                          }
+                        >
+                          <FaClipboardList className="text-lg" />
+                          Manage Orders
+                        </NavLink>
+                      </li>
+                      <li>
+                        <NavLink
+                          to={PATH.VENDOR_BULK_ORDERS}
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
+                          }
+                        >
+                          <FaTasks className="text-lg" />
+                          Bulk Actions
+                        </NavLink>
+                      </li>
+                      <li>
+                        <NavLink
+                          to={PATH.VENDOR_SHIPPING_ORDERS}
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
+                          }
+                        >
+                          <FaTruck className="text-lg" />
+                          Shipping & Delivery
+                        </NavLink>
+                      </li>
+                    </ul>
+                  )}
+                </li>
+                <li>
                   <NavLink
-                    to={PATH.VENDOR_ORDERS}
+                    to={PATH.VENDOR_INVETORY}
                     className={({ isActive }) =>
                       `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
                     }
                   >
-                    <FaShoppingCart className="text-xl" />
-                    <span>Orders</span>
+                    <FaWarehouse className="text-xl" />
+                    <span>Inventory Management</span>
+                  </NavLink>
+                </li>
+                <li>
+                  <div
+                    className={`flex items-center justify-between p-3 rounded-md cursor-pointer ${
+                      isSubMenuActive("vendor_pricing") ? "active" : ""
+                    }`}
+                    onClick={() => toggleSubMenu("vendor_pricing")}
+                  >
+                    <div className="flex items-center gap-3">
+                      <FaTags className="text-xl" />
+                      <span>Pricing & Promotions</span>
+                    </div>
+                    {subMenuOpen.vendor_pricing ? <FaChevronUp /> : <FaChevronDown />}
+                  </div>
+                  {subMenuOpen.vendor_pricing && (
+                    <ul className="ml-8">
+                      <li>
+                        <NavLink
+                          to={PATH.VENDOR_COUPONS}
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
+                          }
+                        >
+                          <FaTicketAlt className="text-lg" />
+                          Coupons & Discounts
+                        </NavLink>
+                      </li>
+                      <li>
+                        <NavLink
+                          to={PATH.VENDOR_FLASH_SALES}
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
+                          }
+                        >
+                          <FaBolt className="text-lg" />
+                          Flash Sales
+                        </NavLink>
+                      </li>
+                      <li>
+                        <NavLink
+                          to={PATH.VENDOR_BANNERS}
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
+                          }
+                        >
+                          <FaImage className="text-lg" />
+                          Banners
+                        </NavLink>
+                      </li>
+                    </ul>
+                  )}
+                </li>
+                <li>
+                  <div
+                    className={`flex items-center justify-between p-3 rounded-md cursor-pointer ${
+                      isSubMenuActive("vendor_customer_interaction") ? "active" : ""
+                    }`}
+                    onClick={() => toggleSubMenu("vendor_customer_interaction")}
+                  >
+                    <div className="flex items-center gap-3">
+                      <FaUsers className="text-xl" />
+                      <span>Customer Interaction</span>
+                    </div>
+                    {subMenuOpen.vendor_customer_interaction ? <FaChevronUp /> : <FaChevronDown />}
+                  </div>
+                  {subMenuOpen.vendor_customer_interaction && (
+                    <ul className="ml-8">
+                      <li>
+                        <NavLink
+                          to={PATH.VENDOR_REVIEWS}
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
+                          }
+                        >
+                          <FaStar className="text-lg" />
+                          Reviews
+                        </NavLink>
+                      </li>
+                      <li>
+                        <NavLink
+                          to={PATH.VENDOR_RATINGS}
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
+                          }
+                        >
+                          <FaThumbsUp className="text-lg" />
+                          Ratings
+                        </NavLink>
+                      </li>
+                      <li>
+                        <NavLink
+                          to={PATH.VENDOR_MESSAGING}
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
+                          }
+                        >
+                          <FaEnvelope className="text-lg" />
+                          Messaging
+                        </NavLink>
+                      </li>
+                      <li>
+                        <NavLink
+                          to={PATH.VENDOR_RETURNS}
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
+                          }
+                        >
+                          <FaUndo className="text-lg" />
+                          Returns & Refunds
+                        </NavLink>
+                      </li>
+                    </ul>
+                  )}
+                </li>
+                <li>
+                  <div
+                    className={`flex items-center justify-between p-3 rounded-md cursor-pointer ${
+                      isSubMenuActive("vendor_store") ? "active" : ""
+                    }`}
+                    onClick={() => toggleSubMenu("vendor_store")}
+                  >
+                    <div className="flex items-center gap-3">
+                      <FaStore className="text-xl" />
+                      <span>Store</span>
+                    </div>
+                    {subMenuOpen.vendor_store ? <FaChevronUp /> : <FaChevronDown />}
+                  </div>
+                  {subMenuOpen.vendor_store && (
+                    <ul className="ml-8">
+                      <li>
+                        <NavLink
+                          to={PATH.VENDOR_SETTINGS}
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
+                          }
+                        >
+                          <FaCog className="text-lg" />
+                          Settings
+                        </NavLink>
+                      </li>
+                    </ul>
+                  )}
+                </li>
+                <li>
+                  <NavLink
+                    to={PATH.VENDOR_PAYMENTS}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
+                    }
+                  >
+                    <FaMoneyCheckAlt className="text-xl" />
+                    <span>Payments & Financials</span>
                   </NavLink>
                 </li>
               </>
