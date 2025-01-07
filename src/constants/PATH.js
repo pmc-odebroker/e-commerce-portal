@@ -14,6 +14,8 @@ export const PATH = {
   VENDOR_HOME: '/vendor',
   VENDOR_DASHBOARD: '/vendor/dashboard',
   VENDOR_PRODUCTS: '/vendor/products',
+  VENDOR_PRODUCT:(id) => `/vendor/products/${id}`,
+  VENDOR_PRODUCT_UPDATE:(id) => `/vendor/products/${id}`,
   VENDOR_ORDERS: '/vendor/orders',
   VENDOR_PROFILE: '/vendor/profile',
   VENDOR_BULK_ORDERS: '/vendor/bulk-orders',

@@ -18,6 +18,7 @@ import ProductStatus from './pages/admin/ProductStatus';
 
 // Vendor Pages
 import VendorProducts from './pages/vendor/VendorProducts';
+import VendorProductDetails from './pages/vendor/VendorProductDetails';
 import OrdersVendor from './pages/vendor/OrdersVendor';
 import VendorProfile from './pages/vendor/VendorProfile';
 
@@ -64,6 +65,7 @@ export const router = createBrowserRouter([
       { path: '', element: <Navigate to={PATH.VENDOR_DASHBOARD} /> },
       { path: PATH.VENDOR_DASHBOARD, element: <VendorDashboard /> },
       { path: PATH.VENDOR_PRODUCTS, element: <VendorProducts /> },
+      { path: PATH.VENDOR_PRODUCT(':id'), element: <VendorProductDetails /> },
       { path: PATH.VENDOR_ORDERS, element: <OrdersVendor /> },
       { path: PATH.VENDOR_PROFILE, element: <VendorProfile /> }
     ]

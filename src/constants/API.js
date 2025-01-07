@@ -21,6 +21,8 @@ const API = {
      * VENDOR API
      */
     VENDOR_PRODUCTS: "/vendor/products",
+    VENDOR_PRODUCT:(id) => `/vendor/products/${id}`,
+    VENDOR_PRODUCT_UPDATE:(id) => `/vendor/products/${id}`,
     VENDOR_ORDERS: "/vendor/orders",
   };
   

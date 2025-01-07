@@ -1,5 +1,6 @@
 import React from 'react'
 import Breadcrumb from '../../components/Breadcrumb'
+
 export default function VendorDashboard() {
   return (
     <div className="p-6 bg-white">

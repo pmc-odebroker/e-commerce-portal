@@ -2,10 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Table, Input, Button, Popconfirm, message, Modal, Form, Select, Upload } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import Breadcrumb from "../../components/Breadcrumb";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import { FaEdit, FaTrashAlt, FaEye } from "react-icons/fa";
 import axiosConfig from "../../constants/AXIOS_CONFIG";
 import API from "../../constants/API";
+import { PATH } from "../../constants/PATH";
 import defaultProductImage from "../../assets/product-image.jpg";
+import { useNavigate } from "react-router-dom";
 
 const VendorProducts = () => {
   const [dataSource, setDataSource] = useState([]);
@@ -20,6 +22,8 @@ const VendorProducts = () => {
   const [categories, setCategories] = useState([]);
   const [productStatuses, setProductStatuses] = useState([]);
   const [pagination, setPagination] = useState({ pageSize: 5, current: 1 });
+  const navigate = useNavigate();
+
 
   const handleSourceChange = (value) => {
     setImageSource(value);
@@ -36,13 +40,11 @@ const VendorProducts = () => {
           axiosConfig.get(API.CATEGORIES),
           axiosConfig.get(API.PRODUCT_STATUSES),
         ]);
-        console.log("productRes data are,", productsRes.data);
 
         const products = productsRes.data.map((item) => ({
           ...item,
           key: item.id,
         }));
-        console.log("products are,", products);
 
         setDataSource(products);
         setFilteredData(products);
@@ -137,8 +139,6 @@ const VendorProducts = () => {
       return;
     }
 
-    console.log("the form data are", formData);
-  
     try {
       const response = await axiosConfig.post(API.VENDOR_PRODUCTS, formData, {
         headers: {
@@ -183,7 +183,6 @@ const VendorProducts = () => {
       dataIndex: "imageUrl",
       key: "imageUrl",
       render: (text) => {
-        // Check if the imageUrl is null or empty
         if (!text) {
           return (
             <img
@@ -197,7 +196,7 @@ const VendorProducts = () => {
         const isOnlineLink = text && text.startsWith("http");
         const imageSrc = isOnlineLink
           ? text
-          : `http://localhost:8080/uploads/${text.split('/uploads/').pop()}`; // Ensure proper path
+          : `http://localhost:8080/uploads/${text.split('/uploads/').pop()}`;
     
         return (
           <img
@@ -281,6 +280,14 @@ const VendorProducts = () => {
           </span>
         ) : (
           <span>
+            <Button
+              icon={<FaEye />}
+              onClick={() => navigate(PATH.VENDOR_PRODUCT(record.id))}
+              size="small"
+              style={{ marginRight: 8 }}
+            >
+              View
+            </Button>
             <Button
               icon={<FaEdit />}
               onClick={() => startEditing(record)}
