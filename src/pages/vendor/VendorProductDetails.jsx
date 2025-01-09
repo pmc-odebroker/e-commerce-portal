@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Select, Button, Spin, message, Upload } from 'antd';
+import { Form, Input, Select, Button, Spin, message, Upload, Row, Col } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import Breadcrumb from '../../components/Breadcrumb';
 import axiosConfig from '../../constants/AXIOS_CONFIG';
@@ -30,15 +30,14 @@ export default function VendorProductDetails() {
 
                 const mappedProduct = {
                     ...productRes.data,
-                    category: productRes.data.categoryName,
-                    productStatus: productRes.data.productStatusName,
+                    category: productRes.data.categoryId,
+                    productStatus: productRes.data.productStatusId,
                 };
 
                 setProduct(mappedProduct);
                 setCategories(categoriesRes.data);
                 setStatuses(statusesRes.data);
 
-                // Set default image source based on imageUrl
                 const defaultSource = productRes.data.imageUrl?.startsWith('http') ? 'url' : 'upload';
                 setImageSource(defaultSource);
 
@@ -59,26 +58,43 @@ export default function VendorProductDetails() {
 
             const formData = new FormData();
             formData.append('name', values.name);
-            formData.append('category', values.category);
-            formData.append('productStatus', values.productStatus);
+            formData.append('categoryId', values.category);
+            formData.append('productStatusId', values.productStatus);
             formData.append('price', values.price);
             formData.append('description', values.description);
 
+            console.log("Image Source:", imageSource);
+            console.log("File to upload:", file);
+
             if (imageSource === 'upload' && file) {
+                console.log("Appending file to formData:", file);
                 formData.append('imageFile', file);
             } else if (imageSource === 'url') {
+                console.log("Appending image URL to formData:", values.imageUrl);
                 formData.append('imageUrl', values.imageUrl);
             }
 
-            await axiosConfig.put(API.VENDOR_PRODUCT_UPDATE(product.id), formData, {
+            // Send update request
+            const response = await axiosConfig.put(API.VENDOR_PRODUCT_UPDATE(product.id), formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
 
+            setProduct(response.data);
+            form.setFieldsValue({
+                ...response.data,
+                category: response.data.categoryId,
+                productStatus: response.data.productStatusId,
+            });
+
             message.success('Product updated successfully!');
         } catch (error) {
-            message.error('Failed to update product');
+            if (error.response && error.response.data) {
+                message.error(error.response.data.msg || 'Failed to update product');
+            } else {
+                message.error('Failed to update product');
+            }
         } finally {
             setLoading(false);
         }
@@ -93,7 +109,7 @@ export default function VendorProductDetails() {
     const getProductImageSrc = (imagePath) => {
         if (!imagePath) return defaultProductImage;
         const isOnlineLink = imagePath.startsWith('http');
-        return isOnlineLink ? imagePath : `http://localhost:8080/uploads/${imagePath.split('/uploads/').pop()}`;
+        return isOnlineLink ? imagePath : `${import.meta.env.VITE_URL}${import.meta.env.VITE_PATH}${text.split(import.meta.env.VITE_PATH).pop()}`;
     };
 
     if (loading) {
@@ -125,37 +141,32 @@ export default function VendorProductDetails() {
                     />
                 </Form.Item>
 
-                <Form.Item
-                    label="Image Source"
-                    name="imageSource"
-                    rules={[{ required: true, message: "Please select an image source!" }]}
-                >
-                    <Select
-                        value={imageSource}
-                        options={[
-                            { label: "Upload File", value: "upload" },
-                            { label: "Provide URL", value: "url" },
-                        ]}
-                        onChange={handleSourceChange}
-                    />
-                </Form.Item>
-
-                {imageSource === 'upload' ? (
-                    <Form.Item
-                        label="Product Image (Upload)"
-                        name="imageFile"
-                        rules={[
-                            { required: true, message: "Please upload an image!" },
-                        ]}
-                    >
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <Input
-                                value={file ? file.name : ""}
-                                readOnly
-                                placeholder="No file selected"
-                                style={{ marginRight: "10px", flex: 1 }}
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Image Source"
+                            name="imageSource"
+                            rules={[{ required: true, message: "Please select an image source!" }]}
+                        >
+                            <Select
+                                value={imageSource}
+                                options={[
+                                    { label: "Upload File", value: "upload" },
+                                    { label: "Provide URL", value: "url" },
+                                ]}
+                                onChange={handleSourceChange}
                             />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        {imageSource === 'upload' ? (
+                            <Form.Item
+                            label="Product Image (Upload)"
+                            name="imageFile"
+                            rules={[{ required: false, message: "Please upload an image!" }]}
+                        >
                             <Upload
+                                fileList={file ? [file] : []}
                                 beforeUpload={(file) => {
                                     setFile(file);
                                     return false;
@@ -165,63 +176,73 @@ export default function VendorProductDetails() {
                             >
                                 <Button icon={<UploadOutlined />}>Choose File</Button>
                             </Upload>
-                        </div>
-                    </Form.Item>
-                ) : (
-                    <Form.Item
-                        label="Product Image URL"
-                        name="imageUrl"
-                        rules={[
-                            { type: 'url', required: true, message: "Please provide a valid URL!" },
-                        ]}
-                    >
-                        <Input placeholder="Enter image URL" />
-                    </Form.Item>
-                )}
+                        </Form.Item>
+                        ) : (
+                            <Form.Item
+                                label="Product Image URL"
+                                rules={[
+                                    { type: 'url', required: true, message: "Please provide a valid URL!" },
+                                ]}
+                            >
+                                <Input placeholder="Enter image URL" />
+                            </Form.Item>
+                        )}
+                    </Col>
+                </Row>
 
-                <Form.Item
-                    label="Product Name"
-                    name="name"
-                    rules={[{ required: true, message: 'Please enter the product name' }]}
-                >
-                    <Input placeholder="Enter product name" />
-                </Form.Item>
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Product Name"
+                            name="name"
+                            rules={[{ required: true, message: 'Please enter the product name' }]}
+                        >
+                            <Input placeholder="Enter product name" />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Category"
+                            name="category"
+                            rules={[{ required: true, message: 'Please select a category' }]}
+                        >
+                            <Select placeholder="Select a category">
+                                {categories.map((category) => (
+                                    <Option key={category.id} value={category.id}>
+                                        {category.name}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                </Row>
 
-                <Form.Item
-                    label="Category"
-                    name="category"
-                    rules={[{ required: true, message: 'Please select a category' }]}
-                >
-                    <Select placeholder="Select a category">
-                        {categories.map((category) => (
-                            <Option key={category.id} value={category.id}>
-                                {category.name}
-                            </Option>
-                        ))}
-                    </Select>
-                </Form.Item>
-
-                <Form.Item
-                    label="Status"
-                    name="productStatus"
-                    rules={[{ required: true, message: 'Please select a status' }]}
-                >
-                    <Select placeholder="Select a status">
-                        {statuses.map((status) => (
-                            <Option key={status.id} value={status.id}>
-                                {status.statusName}
-                            </Option>
-                        ))}
-                    </Select>
-                </Form.Item>
-
-                <Form.Item
-                    label="Price"
-                    name="price"
-                    rules={[{ required: true, message: 'Please enter the price' }]}
-                >
-                    <Input type="number" placeholder="Enter price" />
-                </Form.Item>
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Status"
+                            name="productStatus"
+                            rules={[{ required: true, message: 'Please select a status' }]}
+                        >
+                            <Select placeholder="Select a status">
+                                {statuses.map((status) => (
+                                    <Option key={status.id} value={status.id}>
+                                        {status.statusName}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Price"
+                            name="price"
+                            rules={[{ required: true, message: 'Please enter the price' }]}
+                        >
+                            <Input type="number" placeholder="Enter price" />
+                        </Form.Item>
+                    </Col>
+                </Row>
 
                 <Form.Item label="Description" name="description">
                     <Input.TextArea placeholder="Enter product description" rows={4} />

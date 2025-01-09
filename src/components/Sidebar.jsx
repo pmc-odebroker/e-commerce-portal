@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { FaUsers, FaChevronDown, FaChevronUp, FaShoppingCart, FaCog, FaTags, FaListAlt, FaTachometerAlt, FaBoxes, FaUserAlt,
+import { FaUsers, FaChevronDown, FaChevronUp, FaShoppingCart, FaCog, FaTags, FaListAlt, FaTachometerAlt, FaBoxes, FaUserAlt, FaTruck,
   FaWarehouse, FaTicketAlt, FaBolt, FaImage, FaStar, FaThumbsUp, FaEnvelope, FaUndo, FaStore, FaMoneyCheckAlt ,FaClipboardList, FaTasks} from "react-icons/fa";
 import { MENU } from "../constants/MENU";
 

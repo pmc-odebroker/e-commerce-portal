@@ -73,12 +73,26 @@ const VendorProducts = () => {
   // Save edited changes
   const saveEdit = async (key) => {
     const row = dataSource.find((item) => item.key === key);
+    console.log(row);
+    setLoading(true);
+  
     try {
-      await axiosConfig.put(`${API.VENDOR_PRODUCTS}/${key}`, row);
+      await axiosConfig.put(`${API.VENDOR_PRODUCTS}/${key}`, row, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       message.success("Product updated successfully");
       setEditingKey("");
     } catch (error) {
-      message.error("Failed to update product");
+      console.error("Error response:", error.response);
+      if (error.response && error.response.data) {
+        message.error(error.response.data.msg || "Failed to update product");
+      } else {
+        message.error("Network error or server unreachable.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -122,7 +136,7 @@ const VendorProducts = () => {
   // Add new product
   const handleAddProduct = async () => {
     const values = await form.validateFields();
-  
+
     const formData = new FormData();
     formData.append("name", values.name);
     formData.append("description", values.description);
@@ -196,7 +210,7 @@ const VendorProducts = () => {
         const isOnlineLink = text && text.startsWith("http");
         const imageSrc = isOnlineLink
           ? text
-          : `http://localhost:8080/uploads/${text.split('/uploads/').pop()}`;
+          : `${import.meta.env.VITE_URL}${import.meta.env.VITE_PATH}${text.split(import.meta.env.VITE_PATH).pop()}`;
     
         return (
           <img
@@ -258,8 +272,41 @@ const VendorProducts = () => {
     },
     {
       title: "Category",
-      dataIndex: ["categoryName"],
-      render: (categoryName) => categoryName || "N/A",
+      dataIndex: "categoryId",
+      render: (categoryId, record) =>
+        editingKey === record.key ? (
+          <Select
+            defaultValue={categoryId}
+            onChange={(value) =>
+              handleInputChange(record.key, "categoryId", value)
+            }
+            options={categories.map((category) => ({
+              value: category.id,
+              label: category.name,
+            }))}
+          />
+        ) : (
+          categories.find((category) => category.id === categoryId)?.name || "-"
+        ),
+    },
+    {
+      title: "Product Status",
+      dataIndex: "productStatusId",
+      render: (productStatusId, record) =>
+        editingKey === record.key ? (
+          <Select
+            defaultValue={productStatusId}
+            onChange={(value) =>
+              handleInputChange(record.key, "productStatusId", value)
+            }
+            options={productStatuses.map((status) => ({
+              value: status.id,
+              label: status.statusName,
+            }))}
+          />
+        ) : (
+          productStatuses.find((status) => status.id === productStatusId)?.statusName || "-"
+        ),
     },
     {
       title: "Actions",
@@ -355,7 +402,8 @@ const VendorProducts = () => {
         onCancel={() => setIsModalVisible(false)}
         confirmLoading={loading}
       >
-        <Form form={form} layout="vertical">
+        <Form form={form} layout="vertical" initialValues={{imageSource: "upload",}}
+        >
           <Form.Item
             label="Product Name"
             name="name"
@@ -408,11 +456,9 @@ const VendorProducts = () => {
           <Form.Item
             label="Image Source"
             name="imageSource"
-            initialValue="upload"
             rules={[{ required: true, message: "Please select an image source!" }]}
           >
             <Select
-              defaultValue="upload"
               options={[
                 { label: "Upload File", value: "upload" },
                 { label: "Provide URL", value: "url" },

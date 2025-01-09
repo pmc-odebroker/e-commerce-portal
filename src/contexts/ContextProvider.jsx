@@ -21,10 +21,9 @@ export const ContextProvider = ({ children }) => {
       console.log("Token loaded from localStorage:", savedToken);
     }
 
-    // Optionally, retrieve user data if it's stored in localStorage or another session store
     const savedUser = localStorage.getItem("USER_DATA");
     if (savedUser) {
-      setUserInternal(JSON.parse(savedUser));  // Assuming user data is stored as a JSON string
+      setUserInternal(JSON.parse(savedUser));
       console.log("User data loaded from localStorage:", savedUser);
     }
   }, []);
