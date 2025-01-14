@@ -9,6 +9,11 @@ export const PATH = {
   ADMIN_CATEGORIES: '/admin/categories',
   ADMIN_PRODUCT_STATUSES: '/admin/product-statuses',
   ADMIN_ORDERS: '/admin/orders',
+  ADMIN_BANNERS: '/admin/banners',
+  ADMIN_BANNERS_VIEW:(id) => `/admin/banners/view/${id}`,
+  ADMIN_BANNERS_EDIT:(id) => `/admin/banners/edit/${id}`,
+  ADMIN_BANNERS_UPDATE:(id) => `/admin/banners/update/${id}`,
+  ADMIN_BANNERS_DELETE:(id) => `/admin/banners/delete/${id}`,
 
   // Vendor routes
   VENDOR_HOME: '/vendor',
@@ -28,7 +33,6 @@ export const PATH = {
   VENDOR_MESSAGING: '/vendor/messaging',
   VENDOR_RETURNS: '/vendor/returns',
   VENDOR_FLASH_SALES: '/vendor/flash-sales',
-  VENDOR_BANNERS: '/vendor/banners',
   VENDOR_SETTINGS: '/vendor/settings',
   VENDOR_PAYMENTS: '/vendor/payments',
 

@@ -16,6 +16,10 @@ const API = {
     PRODUCT_STATUSES: "/admin/product-statuses",
     ADMIN_PRODUCTS: "/admin/products",
     ADMIN_ORDERS: "/admin/orders",
+    ADMIN_BANNERS: '/admin/banners',
+    ADMIN_BANNER:(bannerId) => `/admin/banners/${bannerId}`,
+    ADMIN_BANNERS_UPDATE:(bannerId) => `/admin/banners/${bannerId}`,
+    ADMIN_BANNERS_ARCHIVE:(bannerId) => `/admin/banners/${bannerId}/archive`,
 
     /**
      * VENDOR API

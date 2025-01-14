@@ -120,6 +120,17 @@ export default function Sidebar({ toggleSubMenu, subMenuOpen, PATH, sidebarVisib
                           <span>Product Statuses</span>
                         </NavLink>
                       </li>
+                      <li>
+                        <NavLink
+                          to={PATH.ADMIN_BANNERS}
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
+                          }
+                        >
+                          <FaImage className="text-lg" />
+                          Banners
+                        </NavLink>
+                      </li>
                     </ul>
                   )}
                 </li>
@@ -247,17 +258,7 @@ export default function Sidebar({ toggleSubMenu, subMenuOpen, PATH, sidebarVisib
                           Flash Sales
                         </NavLink>
                       </li>
-                      <li>
-                        <NavLink
-                          to={PATH.VENDOR_BANNERS}
-                          className={({ isActive }) =>
-                            `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
-                          }
-                        >
-                          <FaImage className="text-lg" />
-                          Banners
-                        </NavLink>
-                      </li>
+                      
                     </ul>
                   )}
                 </li>
