@@ -20,6 +20,9 @@ const API = {
     ADMIN_BANNER:(bannerId) => `/admin/banners/${bannerId}`,
     ADMIN_BANNERS_UPDATE:(bannerId) => `/admin/banners/${bannerId}`,
     ADMIN_BANNERS_ARCHIVE:(bannerId) => `/admin/banners/${bannerId}/archive`,
+    ADMIN_SPECIFICATIONS: '/admin/specifications',
+    ADMIN_SPECIFICATION:(id) => `/admin/specifications/${id}`,
+    ADMIN_SPECIFICATIONS_UPDATE:(id) => `/admin/specifications/${id}`,
 
     /**
      * VENDOR API

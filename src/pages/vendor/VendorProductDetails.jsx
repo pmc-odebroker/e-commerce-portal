@@ -91,7 +91,7 @@ export default function VendorProductDetails() {
             message.success('Product updated successfully!');
         } catch (error) {
             if (error.response && error.response.data) {
-                message.error(error.response.data.msg || 'Failed to update product');
+                message.error(error.response.data.message || 'Failed to update product');
             } else {
                 message.error('Failed to update product');
             }
@@ -109,8 +109,11 @@ export default function VendorProductDetails() {
     const getProductImageSrc = (imagePath) => {
         if (!imagePath) return defaultProductImage;
         const isOnlineLink = imagePath.startsWith('http');
-        return isOnlineLink ? imagePath : `${import.meta.env.VITE_URL}${import.meta.env.VITE_PATH}${text.split(import.meta.env.VITE_PATH).pop()}`;
+        return isOnlineLink
+            ? imagePath
+            : `${import.meta.env.VITE_URL}${import.meta.env.VITE_PATH}${imagePath.split(import.meta.env.VITE_PATH).pop()}`;
     };
+    
 
     if (loading) {
         return (
@@ -180,6 +183,7 @@ export default function VendorProductDetails() {
                         ) : (
                             <Form.Item
                                 label="Product Image URL"
+                                name="imageUrl"
                                 rules={[
                                     { type: 'url', required: true, message: "Please provide a valid URL!" },
                                 ]}

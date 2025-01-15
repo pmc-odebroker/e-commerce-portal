@@ -122,6 +122,17 @@ export default function Sidebar({ toggleSubMenu, subMenuOpen, PATH, sidebarVisib
                       </li>
                       <li>
                         <NavLink
+                          to={PATH.ADMIN_SPECIFICATIONS}
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`
+                          }
+                        >
+                          <FaClipboardList className="text-xl" />
+                          <span>Specifications</span>
+                        </NavLink>
+                      </li>
+                      <li>
+                        <NavLink
                           to={PATH.ADMIN_BANNERS}
                           className={({ isActive }) =>
                             `flex items-center gap-3 p-3 rounded-md ${isActive ? "active" : ""}`

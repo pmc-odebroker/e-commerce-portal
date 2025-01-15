@@ -14,6 +14,11 @@ export const PATH = {
   ADMIN_BANNERS_EDIT:(id) => `/admin/banners/edit/${id}`,
   ADMIN_BANNERS_UPDATE:(id) => `/admin/banners/update/${id}`,
   ADMIN_BANNERS_DELETE:(id) => `/admin/banners/delete/${id}`,
+  ADMIN_SPECIFICATIONS: '/admin/specifications',
+  ADMIN_SPECIFICATIONS_VIEW:(id) => `/admin/specifications/view/${id}`,
+  ADMIN_SPECIFICATIONS_EDIT:(id) => `/admin/specifications/edit/${id}`,
+  ADMIN_SPECIFICATIONS_UPDATE:(id) => `/admin/specifications/update/${id}`,
+  ADMIN_SPECIFICATIONS_DELETE:(id) => `/admin/specifications/delete/${id}`,
 
   // Vendor routes
   VENDOR_HOME: '/vendor',

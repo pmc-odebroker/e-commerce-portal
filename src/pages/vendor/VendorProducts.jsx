@@ -73,7 +73,6 @@ const VendorProducts = () => {
   // Save edited changes
   const saveEdit = async (key) => {
     const row = dataSource.find((item) => item.key === key);
-    console.log(row);
     setLoading(true);
   
     try {
@@ -85,9 +84,8 @@ const VendorProducts = () => {
       message.success("Product updated successfully");
       setEditingKey("");
     } catch (error) {
-      console.error("Error response:", error.response);
       if (error.response && error.response.data) {
-        message.error(error.response.data.msg || "Failed to update product");
+        message.error(error.response.data.message || "Failed to update product");
       } else {
         message.error("Network error or server unreachable.");
       }
@@ -505,16 +503,16 @@ const VendorProducts = () => {
                   message: "Please provide a valid URL!",
                   required: true,
                 },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(value)) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(
-                      new Error("The URL must point to a valid image file (e.g., .jpg, .png)!")
-                    );
-                  },
-                }),
+                // ({ getFieldValue }) => ({
+                //   validator(_, value) {
+                //     if (!value || /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(value)) {
+                //       return Promise.resolve();
+                //     }
+                //     return Promise.reject(
+                //       new Error("The URL must point to a valid image file (e.g., .jpg, .png)!")
+                //     );
+                //   },
+                // }),
               ]}
             >
           <Input placeholder="Enter image URL" />
