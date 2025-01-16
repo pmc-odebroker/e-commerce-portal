@@ -19,6 +19,11 @@ export const PATH = {
   ADMIN_SPECIFICATIONS_EDIT:(id) => `/admin/specifications/edit/${id}`,
   ADMIN_SPECIFICATIONS_UPDATE:(id) => `/admin/specifications/update/${id}`,
   ADMIN_SPECIFICATIONS_DELETE:(id) => `/admin/specifications/delete/${id}`,
+  ADMIN_SUBCATEGORIES: '/admin/sub-categories',
+  ADMIN_SUBCATEGORIES_VIEW: (id) => `/admin/sub-categories/view/${id}`,
+  ADMIN_SUBCATEGORIES_EDIT: (id) => `/admin/sub-categories/edit/${id}`,
+  ADMIN_SUBCATEGORIES_UPDATE: (id) => `/admin/sub-categories/update/${id}`,
+  ADMIN_SUBCATEGORIES_DELETE: (id) => `/admin/sub-categories/delete/${id}`,
 
   // Vendor routes
   VENDOR_HOME: '/vendor',

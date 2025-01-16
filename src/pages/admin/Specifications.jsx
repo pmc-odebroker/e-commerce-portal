@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Table, Input, Button, Popconfirm, message, Modal, Form } from "antd";
+import { Table, Input, Button, Popconfirm, message, Modal, Form, Select } from "antd";
+import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import Breadcrumb from "../../components/Breadcrumb";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import axiosConfig from "../../constants/AXIOS_CONFIG";
@@ -7,6 +8,7 @@ import API from "../../constants/API";
 
 const Specifications = () => {
     const [dataSource, setDataSource] = useState([]);
+    const [subCategories, setSubCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editingKey, setEditingKey] = useState("");
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -15,13 +17,14 @@ const Specifications = () => {
     const [filteredData, setFilteredData] = useState([]);
     const [pagination, setPagination] = useState({ pageSize: 5, current: 1 });
 
-    // Fetch specifications on mount
+    // Fetch specifications
     useEffect(() => {
         const fetchSpecifications = async () => {
             try {
                 const response = await axiosConfig.get(API.ADMIN_SPECIFICATIONS);
-                console.log(response);
-                
+
+                console.log("Response Data:", response.data);
+                                
                 const specifications = response.data.result.map((item) => ({
                     ...item,
                     key: item.id,
@@ -40,6 +43,20 @@ const Specifications = () => {
         fetchSpecifications();
     }, []);
 
+    useEffect(() => {
+        const fetchSubCategories = async () => {
+            try {
+                const response = await axiosConfig.get(API.ADMIN_SUBCATEGORIES);
+                setSubCategories(response.data.result); 
+            } catch (error) {
+                message.error(error.response?.data?.msg || "Failed to fetch sub-categories")
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchSubCategories();
+    }, []);
 
     // Start editing a row
     const startEditing = (record) => {
@@ -73,8 +90,10 @@ const Specifications = () => {
     };
 
     // Add new specification
-    const handleAddSpecification = async () => {
+    const handleAddSpecifications = async () => {
         const values = await form.validateFields();
+
+        console.log(values);
 
         try {
             const response = await axiosConfig.post(API.ADMIN_SPECIFICATIONS, values);
@@ -209,6 +228,7 @@ const Specifications = () => {
                 dataSource={filteredData}
                 loading={loading}
                 columns={columns}
+                rowClassName="editable-row"
                 pagination={{
                     pageSize: pagination.pageSize,
                     current: pagination.current,
@@ -216,6 +236,16 @@ const Specifications = () => {
                 }}
                 title={() => (
                     <div className="flex justify-between">
+                        <Select
+                            defaultValue={5}
+                            onChange={(value) => handlePaginationChange(pagination.current, value)}
+                            options={[
+                                { label: "5", value: 5 },
+                                { label: "10", value: 10 },
+                                { label: "20", value: 20 },
+                            ]}
+                            style={{ marginRight: 10, width: 100 }}
+                        />
                         <Input.Search
                             placeholder="Search specification"
                             value={searchText}
@@ -226,41 +256,88 @@ const Specifications = () => {
                 )}
             />
             <Modal
-                title="Add Specification"
+                title="Add Specifications"
                 open={isModalVisible}
-                onOk={handleAddSpecification}
+                onOk={handleAddSpecifications}
                 onCancel={() => setIsModalVisible(false)}
             >
                 <Form
                     form={form}
                     layout="vertical"
                     initialValues={{
-                        name: "",
+                        sub_category_id: "",
+                        specifications: [{ name: "", description: "" }],
                     }}
                 >
+                    {/* Sub-Category Selection */}
                     <Form.Item
-                        label="Name"
-                        name="name"
-                        rules={[{ required: true, message: "Please input name!" }]}
+                        label="Sub Category"
+                        name="subCategoryId"
+                        rules={[{ required: true, message: "Please select a sub-category!" }]}
                     >
-                        <Input />
+                        <Select
+                            placeholder="Select a sub-category"
+                            options={subCategories.map((cat) => ({
+                                label: cat.name,
+                                value: cat.id,
+                            }))}
+                        />
                     </Form.Item>
-                </Form>
 
-                <Form
-                    form={form}
-                    layout="vertical"
-                    initialValues={{
-                        description: "",
-                    }}
-                >
-                    <Form.Item
-                        label="Description"
-                        name="description"
-                        rules={[{ required: true, message: "Please input description!" }]}
-                    >
-                        <Input.TextArea />
-                    </Form.Item>
+                    {/* Dynamic List for Specifications */}
+                    <Form.List name="specifications">
+                        {(fields, { add, remove }) => (
+                            <>
+                                {fields.map(({ key, name, fieldKey, ...restField }) => (
+                                    <div key={key} style={{ display: "flex", alignItems: "center" }}>
+                                        {/* Specification Name */}
+                                        <Form.Item
+                                            {...restField}
+                                            name={[name, "name"]}
+                                            fieldKey={[fieldKey, "name"]}
+                                            rules={[{ required: true, message: "Please input the name!" }]}
+                                            style={{ flex: 1, marginRight: 8 }}
+                                        >
+                                            <Input placeholder="Specification Name" />
+                                        </Form.Item>
+
+                                        {/* Specification Description */}
+                                        <Form.Item
+                                            {...restField}
+                                            name={[name, "description"]}
+                                            fieldKey={[fieldKey, "description"]}
+                                            rules={[{ required: true, message: "Please input the description!" }]}
+                                            style={{ flex: 1, marginRight: 8 }}
+                                        >
+                                            <Input.TextArea placeholder="Description" rows={1} />
+                                        </Form.Item>
+
+                                        {/* Remove Button */}
+                                        <Button
+                                            type="link"
+                                            onClick={() => remove(name)}
+                                            icon={<DeleteOutlined />}
+                                            danger
+                                        >
+                                            Remove
+                                        </Button>
+                                    </div>
+                                ))}
+
+                                {/* Add New Specification Button */}
+                                <Form.Item>
+                                    <Button
+                                        type="dashed"
+                                        onClick={() => add()}
+                                        style={{ width: "100%" }}
+                                        icon={<PlusOutlined />}
+                                    >
+                                        Add Specification
+                                    </Button>
+                                </Form.Item>
+                            </>
+                        )}
+                    </Form.List>
                 </Form>
             </Modal>
         </div>

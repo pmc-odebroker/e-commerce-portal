@@ -17,6 +17,7 @@ import Categories from './pages/admin/Categories';
 import ProductStatus from './pages/admin/ProductStatus';
 import Banners from './pages/admin/Banners';
 import Specifications from './pages/admin/Specifications';
+import SubCategories from './pages/admin/SubCategories';
 
 
 // Vendor Pages
@@ -54,6 +55,7 @@ export const router = createBrowserRouter([
       { path: PATH.ADMIN_CUSTOMER_DETAIL(':id'), element: <CustomerDetail /> },
       { path: PATH.ADMIN_ORDERS, element: <OrdersAdmin /> },
       { path: PATH.ADMIN_CATEGORIES, element: <Categories /> },
+      { path: PATH.ADMIN_SUBCATEGORIES, element: <SubCategories /> },
       { path: PATH.ADMIN_PRODUCT_STATUSES, element: <ProductStatus /> },
       { path: PATH.ADMIN_BANNERS, element: <Banners />},
       { path: PATH.ADMIN_SPECIFICATIONS, element: <Specifications />},

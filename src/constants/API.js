@@ -23,6 +23,9 @@ const API = {
     ADMIN_SPECIFICATIONS: '/admin/specifications',
     ADMIN_SPECIFICATION:(id) => `/admin/specifications/${id}`,
     ADMIN_SPECIFICATIONS_UPDATE:(id) => `/admin/specifications/${id}`,
+    ADMIN_SUBCATEGORIES: '/admin/sub-categories',
+    ADMIN_SUBCATEGORY:(id) => `/admin/sub-categories/${id}`,
+    ADMIN_SUBCATEGORIES_UPDATE:(id) => `/admin/sub-categories/${id}`,
 
     /**
      * VENDOR API
