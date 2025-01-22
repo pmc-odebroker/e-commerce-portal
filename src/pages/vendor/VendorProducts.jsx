@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Input, Button, Popconfirm, message, Modal, Form, Select, Upload } from "antd";
+import { Table, Input, Button, Popconfirm, message, Modal, Form, Select, Upload, Row, Col } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import Breadcrumb from "../../components/Breadcrumb";
 import { FaEdit, FaTrashAlt, FaEye } from "react-icons/fa";
@@ -20,7 +20,12 @@ const VendorProducts = () => {
   const [searchText, setSearchText] = useState("");
   const [filteredData, setFilteredData] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [loadingSubCategories, setLoadingSubCategories] = useState(false);
   const [productStatuses, setProductStatuses] = useState([]);
+  const [specifications, setSpecifications] = useState([]);
+  const [loadingSpecifications, setLoadingSpecifications] = useState(false);
   const [pagination, setPagination] = useState({ pageSize: 5, current: 1 });
   const navigate = useNavigate();
 
@@ -35,10 +40,12 @@ const VendorProducts = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [productsRes, categoriesRes, statusesRes] = await Promise.all([
+        const [productsRes, categoriesRes, subCategoriesRes, statusesRes] = await Promise.all([
           axiosConfig.get(API.VENDOR_PRODUCTS),
           axiosConfig.get(API.CATEGORIES),
+          axiosConfig.get(API.ADMIN_SUBCATEGORIES),
           axiosConfig.get(API.PRODUCT_STATUSES),
+          axiosConfig.get(API.ADMIN_SPECIFICATIONS)
         ]);
 
         const products = productsRes.data.map((item) => ({
@@ -49,6 +56,7 @@ const VendorProducts = () => {
         setDataSource(products);
         setFilteredData(products);
         setCategories(categoriesRes.data);
+        setSubCategories(subCategoriesRes.data.result);
         setProductStatuses(statusesRes.data);
       } catch (error) {
         message.error("Failed to fetch data");
@@ -60,6 +68,65 @@ const VendorProducts = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [specificationsRes] = await Promise.all([
+          axiosConfig.get(API.ADMIN_SPECIFICATIONS),
+        ]);
+  
+        const specs = specificationsRes.data.result.map((spec) => ({
+          id: spec.id,
+          name: spec.name,
+        }));
+  
+        form.setFieldsValue({ specifications: specs });
+        setSpecifications(specs);
+      } catch (error) {
+        message.error("Failed to fetch data");
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchData();
+  }, [form]);
+
+  // Handle category change event
+  const handleCategoryChange = async (value) => {
+    setSelectedCategory(value);
+    setSubCategories([]);
+    setLoadingSubCategories(true);
+    try {
+      const response = await axiosConfig.get(API.ADMIN_CATEGORY_SUBCATEGORIES(value));
+      setSubCategories(response.data.result);
+    } catch (error) {
+      message.error("Failed to fetch sub-categories");
+    } finally {
+      setLoadingSubCategories(false);
+    }
+  };
+
+  // Handle fetch specifications dynamically
+  const handleSubCategoryChange = async (value) => {
+    setLoadingSpecifications(true);
+    form.setFieldsValue({ specifications: [] });
+    try {
+      const response = await axiosConfig.get(API.ADMIN_SUBCATEGORY_SPECIFICATIONS(value));
+      const specs = response.data.result.map((spec) => ({
+        id: spec.id,
+        name: spec.name,
+        value: "",
+      }));
+      setSpecifications(specs);
+    } catch (error) {
+      message.error("Failed to fetch specifications");
+    } finally {
+      setLoadingSpecifications(false);
+    }
+  };
+  
+  
   // Start editing a row
   const startEditing = (record) => {
     setEditingKey(record.key);
@@ -140,6 +207,7 @@ const VendorProducts = () => {
     formData.append("description", values.description);
     formData.append("price", values.price);
     formData.append("categoryId", values.categoryId);
+    formData.append("subCategoryId", values.subCategoryId);
     formData.append("productStatusId", values.productStatusId);
   
     if (values.imageSource === "upload" && file) {
@@ -150,6 +218,12 @@ const VendorProducts = () => {
       message.error("Please provide a valid image source.");
       return;
     }
+
+    values.specifications.forEach((spec, index) => {
+      formData.append(`specifications[${index}].specificationId`, spec.id);
+      formData.append(`specifications[${index}].specificationName`, spec.name);
+      formData.append(`specifications[${index}].value`, spec.value);
+    });    
 
     try {
       const response = await axiosConfig.post(API.VENDOR_PRODUCTS, formData, {
@@ -288,6 +362,25 @@ const VendorProducts = () => {
         ),
     },
     {
+      title: "Sub Category",
+      dataIndex: "subCategoryId",
+      render: (subCategoryId, record) =>
+        editingKey === record.key ? (
+          <Select
+            defaultValue={subCategoryId}
+            onChange={(value) =>
+              handleInputChange(record.key, "subCategoryId", value)
+            }
+            options={subCategories.map((subCategory) => ({
+              value: subCategory.id,
+              label: subCategory.name,
+            }))}
+          />
+        ) : (
+          subCategories.find((subCategory) => subCategory.id === subCategoryId)?.name || "-"
+        ),
+    },
+    {
       title: "Product Status",
       dataIndex: "productStatusId",
       render: (productStatusId, record) =>
@@ -399,6 +492,8 @@ const VendorProducts = () => {
         onOk={handleAddProduct}
         onCancel={() => setIsModalVisible(false)}
         confirmLoading={loading}
+        width={800}
+
       >
         <Form form={form} layout="vertical" initialValues={{imageSource: "upload",}}
         >
@@ -435,8 +530,88 @@ const VendorProducts = () => {
                 label: cat.name,
                 value: cat.id,
               }))}
+              onChange={handleCategoryChange}
             />
           </Form.Item>
+          <Form.Item
+            label="Sub Category"
+            name="subCategoryId"
+            rules={[{ required: true, message: "Please select a sub category!" }]}
+          >
+            <Select
+              options={subCategories.map((subCat) => ({
+                label: subCat.name,
+                value: subCat.id,
+              }))}
+              loading={loadingSubCategories}
+              disabled={!selectedCategory || loadingSubCategories}
+              onChange={handleSubCategoryChange}
+            />
+          </Form.Item>
+          <Form.List name="specifications" initialValue={specifications}>
+            {(fields, { add, remove }) => (
+              <>
+                <Row gutter={[16, 16]} style={{ marginBottom: "10px" }}>
+                  <Col span={10}>
+                    <strong>Specification</strong>
+                  </Col>
+                  <Col span={10}>
+                    <strong>Value</strong>
+                  </Col>
+                  <Col span={4}>
+                    <strong>Action</strong>
+                  </Col>
+                </Row>
+                {fields.map(({ key, name, ...restField }) => (
+                  <Row
+                    gutter={[16, 16]}
+                    key={key}
+                    align="middle"
+                    style={{ marginBottom: "10px" }}
+                  >
+                    <Col span={10}>
+                      <Form.Item {...restField} name={[name, "name"]}>
+                        <Input
+                          value={specifications[key]?.name}
+                          disabled
+                          style={{ backgroundColor: "#f5f5f5" }}
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "id"]}
+                        hidden
+                      >
+                        <Input />
+                      </Form.Item>
+                    </Col>
+                    <Col span={10}>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "value"]}
+                        rules={[{ required: true, message: "Please enter a value!" }]}
+                      >
+                        <Input placeholder="Enter value" />
+                      </Form.Item>
+                    </Col>
+                    <Col span={4}>
+                      <Button type="link" danger onClick={() => remove(name)}>
+                        Remove
+                      </Button>
+                    </Col>
+                  </Row>
+                ))}
+                <Button
+                  type="dashed"
+                  onClick={() => add({ id: "", name: "", value: "" })}
+                  block
+                  style={{ marginTop: "10px" }}
+                >
+                  Add Specification
+                </Button>
+              </>
+            )}
+          </Form.List>
           <Form.Item
             label="Product Status"
             name="productStatusId"
@@ -503,16 +678,6 @@ const VendorProducts = () => {
                   message: "Please provide a valid URL!",
                   required: true,
                 },
-                // ({ getFieldValue }) => ({
-                //   validator(_, value) {
-                //     if (!value || /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(value)) {
-                //       return Promise.resolve();
-                //     }
-                //     return Promise.reject(
-                //       new Error("The URL must point to a valid image file (e.g., .jpg, .png)!")
-                //     );
-                //   },
-                // }),
               ]}
             >
           <Input placeholder="Enter image URL" />

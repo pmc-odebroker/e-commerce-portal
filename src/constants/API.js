@@ -21,9 +21,11 @@ const API = {
     ADMIN_BANNERS_UPDATE:(bannerId) => `/admin/banners/${bannerId}`,
     ADMIN_BANNERS_ARCHIVE:(bannerId) => `/admin/banners/${bannerId}/archive`,
     ADMIN_SPECIFICATIONS: '/admin/specifications',
+    ADMIN_SUBCATEGORY_SPECIFICATIONS: (subCategoryId) => `/admin/specifications/sub-category/${subCategoryId}`,
     ADMIN_SPECIFICATION:(id) => `/admin/specifications/${id}`,
     ADMIN_SPECIFICATIONS_UPDATE:(id) => `/admin/specifications/${id}`,
     ADMIN_SUBCATEGORIES: '/admin/sub-categories',
+    ADMIN_CATEGORY_SUBCATEGORIES:(categoryId) => `/admin/sub-categories/category/${categoryId}`,
     ADMIN_SUBCATEGORY:(id) => `/admin/sub-categories/${id}`,
     ADMIN_SUBCATEGORIES_UPDATE:(id) => `/admin/sub-categories/${id}`,
 

@@ -259,7 +259,7 @@ const SubCategories = () => {
             <Form form={form} layout="vertical">
                 <Form.Item
                     label="Category"
-                    name="category_id"
+                    name="categoryId"
                     rules={[{ required: true, message: "Please select a category!" }]}
                 >
                     <Select
