@@ -14,6 +14,8 @@ export default function VendorProductDetails() {
     const [loading, setLoading] = useState(true);
     const [product, setProduct] = useState({});
     const [categories, setCategories] = useState([]);
+    const [subCategories, setSubCategories] = useState([]);
+    const [specifications, setSpecifications] = useState([]);
     const [statuses, setStatuses] = useState([]);
     const [imageSource, setImageSource] = useState('upload');
     const [file, setFile] = useState(null);
@@ -22,26 +24,55 @@ export default function VendorProductDetails() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [productRes, categoriesRes, statusesRes] = await Promise.all([
+                const [productRes, categoriesRes, subCategoriesRes, specificationsRes, statusesRes] = await Promise.all([
                     axiosConfig.get(API.VENDOR_PRODUCT(id)),
                     axiosConfig.get(API.CATEGORIES),
+                    axiosConfig.get(API.ADMIN_SUBCATEGORIES),
+                    axiosConfig.get(API.ADMIN_SPECIFICATIONS),
                     axiosConfig.get(API.PRODUCT_STATUSES),
                 ]);
 
+                console.log("product API Response:", productRes.data);
+                console.log("SubCategories API Response:", subCategoriesRes.data);
+                console.log("Specifications API Response:", specificationsRes.data);
+                
                 const mappedProduct = {
                     ...productRes.data,
                     category: productRes.data.categoryId,
+                    subCategory: productRes.data.subCategoryId,
                     productStatus: productRes.data.productStatusId,
                 };
 
+                // Get product specifications (specifications already associated with the product)
+                const mappedProductSpecifications = productRes.data.specifications.map(spec => ({
+                    name: spec.name,
+                    value: spec.value,
+                    id: spec.id,
+                }));
+
+                // Get sub-category specifications (generic specifications based on the sub-category)
+                const mappedSubCategorySpecifications = specificationsRes.data.result.filter(
+                    spec => spec.subCategoryId === productRes.data.subCategoryId
+                );
+
+                // Merge the product specifications with the sub-category specifications
+                const allSpecifications = [
+                    ...mappedProductSpecifications,
+                    ...mappedSubCategorySpecifications.filter(subSpec =>
+                        !mappedProductSpecifications.some(productSpec => productSpec.id === subSpec.id)
+                    ),
+                ];
+
                 setProduct(mappedProduct);
                 setCategories(categoriesRes.data);
+                setSubCategories(subCategoriesRes.data.result);
+                setSpecifications(allSpecifications);
                 setStatuses(statusesRes.data);
 
                 const defaultSource = productRes.data.imageUrl?.startsWith('http') ? 'url' : 'upload';
                 setImageSource(defaultSource);
 
-                form.setFieldsValue({ ...mappedProduct, imageSource: defaultSource });
+                form.setFieldsValue({ ...mappedProduct, imageSource: defaultSource, specifications: allSpecifications });
             } catch (error) {
                 message.error('Failed to fetch data');
             } finally {
@@ -52,6 +83,17 @@ export default function VendorProductDetails() {
         fetchData();
     }, [form, id]);
 
+    // dynamic update specifications when the subCategory changes
+    useEffect(() => {
+        if (product?.subCategory) {
+            const filteredSpecifications = specifications.filter(spec => spec.subCategoryId === product.subCategory);
+            console.log("Filtered Specifications:", filteredSpecifications);
+
+            form.setFieldsValue({ specifications: filteredSpecifications });
+            setProduct(prev => ({ ...prev, specifications: filteredSpecifications }));
+        }
+    }, [product?.subCategory, specifications]);
+
     const handleSave = async (values) => {
         try {
             setLoading(true);
@@ -59,7 +101,9 @@ export default function VendorProductDetails() {
             const formData = new FormData();
             formData.append('name', values.name);
             formData.append('categoryId', values.category);
+            formData.append('subCategoryId', values.subCategory);
             formData.append('productStatusId', values.productStatus);
+            formData.append('specifications', values.specifications);
             formData.append('price', values.price);
             formData.append('description', values.description);
 
@@ -85,6 +129,7 @@ export default function VendorProductDetails() {
             form.setFieldsValue({
                 ...response.data,
                 category: response.data.categoryId,
+                subCategory: response.data.subCategoryId,
                 productStatus: response.data.productStatusId,
             });
 
@@ -97,6 +142,23 @@ export default function VendorProductDetails() {
             }
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSubCategoryChange = async (subCategoryId) => {
+        try {
+            const response = await axiosConfig.get(API.ADMIN_SUBCATEGORY_SPECIFICATIONS(subCategoryId));
+            const subCategorySpecifications = response.data.result;
+
+            console.log("the specifications related to subcategory are", subCategorySpecifications);
+    
+            setSpecifications(subCategorySpecifications);
+    
+            form.setFieldsValue({
+                specifications: [],
+            });
+        } catch (error) {
+            message.error('Failed to fetch sub-category specifications');
         }
     };
 
@@ -131,7 +193,6 @@ export default function VendorProductDetails() {
                 form={form}
                 layout="vertical"
                 onFinish={handleSave}
-                initialValues={product}
             >
                 <Form.Item label="Current Product Image">
                     <img
@@ -219,6 +280,86 @@ export default function VendorProductDetails() {
                             </Select>
                         </Form.Item>
                     </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Description"
+                            name="description"
+                             rules={[{ required: true, message: "Please input product description!" }]}
+                        >
+                        <Input.TextArea />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Sub Category"
+                            name="subCategory"
+                            rules={[{ required: true, message: 'Please select a sub-category' }]}
+                        >
+                            <Select placeholder="Select a sub-category" onChange={handleSubCategoryChange}>
+                                {subCategories.map((subCategory) => (
+                                    <Option key={subCategory.id} value={subCategory.id}>
+                                        {subCategory.name}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                    <Form.List name="specifications">
+                        {(fields, { add, remove }) => (
+                            <>
+                                <Row gutter={[16, 16]} style={{ marginBottom: "10px" }}>
+                                    <Col span={10}>
+                                        <strong>Specification</strong>
+                                    </Col>
+                                    <Col span={10}>
+                                        <strong>Value</strong>
+                                    </Col>
+                                    <Col span={4}>
+                                        <strong>Action</strong>
+                                    </Col>
+                                </Row>
+                                {fields.map(({ key, name, fieldKey, ...restField }) => {
+                                    const spec = specifications[key];
+                                    return (
+                                        <Row
+                                            gutter={[16, 16]}
+                                            key={key}
+                                            align="middle"
+                                            style={{ marginBottom: "10px" }}
+                                        >
+                                            <Col span={10}>
+                                                <Form.Item {...restField} name={[name, "name"]}>
+                                                    <Input
+                                                        value={spec?.name}
+                                                        disabled
+                                                        style={{ backgroundColor: "#f5f5f5" }}
+                                                    />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={10}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    name={[name, "value"]}
+                                                    initialValue={spec?.value}
+                                                    rules={[{ required: true, message: "Please enter a value!" }]}
+                                                >
+                                                    <Input placeholder="Enter value" />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={4}>
+                                                <Button type="link" danger onClick={() => remove(name)}>
+                                                    Remove
+                                                </Button>
+                                            </Col>
+                                        </Row>
+                                    );
+                                })}
+                            </>
+                        )}
+                    </Form.List>
+
+                    </Col>
                 </Row>
 
                 <Row gutter={16}>
@@ -247,10 +388,6 @@ export default function VendorProductDetails() {
                         </Form.Item>
                     </Col>
                 </Row>
-
-                <Form.Item label="Description" name="description">
-                    <Input.TextArea placeholder="Enter product description" rows={4} />
-                </Form.Item>
 
                 <div className="flex justify-end">
                     <Button type="primary" htmlType="submit">

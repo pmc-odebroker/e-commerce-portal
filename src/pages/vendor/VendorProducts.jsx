@@ -22,6 +22,7 @@ const VendorProducts = () => {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedSubCategory, setSelectedSubCategory] = useState(null);
   const [loadingSubCategories, setLoadingSubCategories] = useState(false);
   const [productStatuses, setProductStatuses] = useState([]);
   const [specifications, setSpecifications] = useState([]);
@@ -94,7 +95,9 @@ const VendorProducts = () => {
 
   // Handle category change event
   const handleCategoryChange = async (value) => {
+    form.setFieldsValue({ subCategoryId: null, specifications: []});
     setSelectedCategory(value);
+    setSelectedSubCategory(null);
     setSubCategories([]);
     setLoadingSubCategories(true);
     try {
@@ -109,6 +112,7 @@ const VendorProducts = () => {
 
   // Handle fetch specifications dynamically
   const handleSubCategoryChange = async (value) => {
+    setSelectedSubCategory(value);
     setLoadingSpecifications(true);
     form.setFieldsValue({ specifications: [] });
     try {
@@ -119,13 +123,29 @@ const VendorProducts = () => {
         value: "",
       }));
       setSpecifications(specs);
+      form.setFieldsValue({ specifications: specs });
     } catch (error) {
       message.error("Failed to fetch specifications");
     } finally {
       setLoadingSpecifications(false);
     }
   };
-  
+
+  const showModal = () => {
+    setSelectedCategory(null);
+    setSubCategories([]);
+    setSpecifications([]);
+    setIsModalVisible(true);
+    form.resetFields();
+  };
+
+  const handleCloseModal = () => {
+    setSelectedCategory(null);
+    setSubCategories([]);
+    setSpecifications([]);
+    form.resetFields();
+    setTimeout(() => setIsModalVisible(false), 10);
+  };
   
   // Start editing a row
   const startEditing = (record) => {
@@ -449,7 +469,7 @@ const VendorProducts = () => {
       <Breadcrumb />
       <div className="row flex justify-between mt-2">
         <h3 className="text-2xl font-semibold">Products</h3>
-        <Button type="primary" onClick={() => setIsModalVisible(true)}>
+        <Button type="primary" onClick={showModal}>
           Add Product
         </Button>
       </div>
@@ -490,7 +510,7 @@ const VendorProducts = () => {
         title="Add New Product"
         open={isModalVisible}
         onOk={handleAddProduct}
-        onCancel={() => setIsModalVisible(false)}
+        onCancel={handleCloseModal}
         confirmLoading={loading}
         width={800}
 
@@ -548,6 +568,8 @@ const VendorProducts = () => {
               onChange={handleSubCategoryChange}
             />
           </Form.Item>
+          
+          {selectedSubCategory && specifications.length > 0 && (
           <Form.List name="specifications" initialValue={specifications}>
             {(fields, { add, remove }) => (
               <>
@@ -601,17 +623,18 @@ const VendorProducts = () => {
                     </Col>
                   </Row>
                 ))}
-                <Button
+                {/* <Button
                   type="dashed"
                   onClick={() => add({ id: "", name: "", value: "" })}
                   block
                   style={{ marginTop: "10px" }}
                 >
                   Add Specification
-                </Button>
+                </Button> */}
               </>
             )}
           </Form.List>
+          )}
           <Form.Item
             label="Product Status"
             name="productStatusId"
